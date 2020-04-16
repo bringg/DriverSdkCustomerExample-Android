@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">DriverSdkCustomerExample</string>
+    <string name="notification_in_shift_title">Title</string>
+    <string name="notification_in_shift_message">Message</string>
+
+    <string name="button_text_login">Login</string>
+    <string name="button_text_logout">Logout</string>
+    <string name="button_text_start_task">Start task</string>
+    <string name="button_text_get_active_task">Get active task</string>
+    <string name="button_text_start_sharing_location">Start sharing location</string>
+    <string name="button_text_stop_sharing_location">Stop</string>
+    <string name="button_text_waypoint_arrive">Arrive</string>
+    <string name="button_text_waypoint_leave">Leave</string>
+    <string name="hint_task_id">Task</string>
+    <string name="hint_waypoint_id">Waypoint</string>
+</resources>
