@@ -4,14 +4,15 @@ import android.content.Context
 import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.bringg.example.R
 import driver_sdk.models.Task
 import driver_sdk.models.Waypoint
+import kotlinx.android.synthetic.main.fragment_waypoint_list_header.view.*
 import kotlinx.android.synthetic.main.layout_way_point_title.view.*
 import kotlinx.android.synthetic.main.waypoint_time_window_layout.view.*
 
@@ -25,10 +26,10 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
     private var secondLineAddress: TextView
     private var customerAddressType: TextView
     private var customerAddressName: TextView
-    private var checkoutTimeView: TextView
-    private var headerView: View
+     private var headerView: View
 
     init {
+        useCompatPadding = true
         val inflater = LayoutInflater.from(context)
         val rootView: View = inflater.inflate(R.layout.fragment_way_point, this)
         headerView = inflater.inflate(R.layout.fragment_waypoint_list_header, this)
@@ -36,16 +37,12 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         secondLineAddress = headerView.findViewById(R.id.way_point_second_address)
         customerAddressType = headerView.findViewById(R.id.customer_address_type)
         customerAddressName = headerView.findViewById(R.id.customer_address_name)
-        checkoutTimeView = rootView.findViewById(R.id.checked_out_time)
         val waypointDescriptionLayout = headerView.findViewById<LinearLayout>(R.id.waypoint_description_layout)
         val waypointDescriptionText = waypointDescriptionLayout.findViewById<TextView>(R.id.way_point_description_text)
         waypointDescriptionText.text = task.title
-        val llManager = LinearLayoutManager(context)
-        llManager.isAutoMeasureEnabled = true
-        val inventoryView: View = LayoutInflater.from(context).inflate(R.layout.way_point_notes_inventory_header, findViewById(R.id.flInventories))
-        val inventoryListContainer = inventoryView.findViewById<LinearLayout>(R.id.inventory_list)
         inventoryLayout = InventoryPricingLayout(context)
-        inventoryListContainer.addView(inventoryLayout)
+        inventoryLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
+        inventory_list.addView(inventoryLayout)
         refresh()
     }
 
@@ -64,7 +61,7 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
 
     private fun refresh() {
         updateTimeWindowDetails()
-        onInventoryChanged(inventoryLayout, task, waypoint)
+        updateInventoryList()
         updateAddress()
         waypoint?.let { updateCustomer(it) }
     }
@@ -97,7 +94,7 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         return sb
     }
 
-    private fun onInventoryChanged(inventoryLayout: InventoryPricingLayout, task: Task, waypoint: Waypoint) {
+    private fun updateInventoryList() {
         inventoryLayout.setData(task, waypoint)
         inventoryLayout.setDeliveryFee(task.deliveryPrice)
         inventoryLayout.setTotal(task.totalPrice)

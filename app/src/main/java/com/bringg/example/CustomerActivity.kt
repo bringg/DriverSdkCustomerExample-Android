@@ -57,7 +57,7 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
         //                "region": "us-east-1"
         //            }
 
-        customerActionsSDK.login("17952066-f1a7-456c-a794-e1c3b8005691", "524680ec-a2e5-42ac-8528-ad65c0771539", "us-east-1", object : ResultCallback<Boolean> {
+        customerActionsSDK.login("1b3196b8-0a96-4225-b9c4-00bd8561c24d", "bcd919c3-9a7f-4b6b-af84-06e2e64cb582", "us-east-1", object : ResultCallback<Boolean> {
             override fun onResult(result: Boolean) {
                 // true = successful login, false = login error.
                 if (result)
@@ -84,10 +84,26 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
         } else {
             current_state.text = "Got active order, order status=${task.status}"
             task.wayPoints.forEach { waypoints_container.addView(WaypointView.newInstance(this, task, it.id)) }
-            button_next_customer_action.text = "Start Order"
-            button_next_customer_action.setOnClickListener {
-                startOrder(task)
-            }
+            if (!task.isStarted)
+                onNewOrder(task)
+            else if (task.currentWayPoint.isCheckedIn)
+                onArrived(task)
+            else if (task.isDone)
+                onOrderDone()
+            else
+                onLeft(task)
+        }
+    }
+
+    private fun onOrderDone() {
+        button_next_customer_action.text = "Order Done"
+        button_next_customer_action.setOnClickListener(null)
+    }
+
+    private fun onNewOrder(task: Task) {
+        button_next_customer_action.text = "Start Order"
+        button_next_customer_action.setOnClickListener {
+            startOrder(task)
         }
     }
 
@@ -122,12 +138,13 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
 
     private fun onArrived(task: Task) {
         current_state.text = "Arrived to destination"
-
-        val result = customerActionsSDK.leaveWaypoint(task.getId(), task.currentWayPoint.id)
-        if (result.success()) {
-            onLeft(task)
-        } else {
-            current_state.text = "Error trying to leave waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result}"
+        button_next_customer_action.setOnClickListener {
+            val result = customerActionsSDK.leaveWaypoint(task.getId(), task.currentWayPoint.id)
+            if (result.success()) {
+                onLeft(task)
+            } else {
+                current_state.text = "Error trying to leave waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result}"
+            }
         }
     }
 
