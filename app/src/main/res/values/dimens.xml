@@ -1,0 +1,111 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="sort_button_corner_radius">5dp</dimen>
+    <dimen name="global_border_margin">16dp</dimen>
+    <dimen name="actionbar_image_margin">8dp</dimen>
+    <dimen name="waypoint_object_margin">7dp</dimen>
+    <dimen name="bottom_bar_height">70dp</dimen>
+    <dimen name="note_photo_height">80dip</dimen>
+    <dimen name="note_layout_height">80dip</dimen>
+    <dimen name="note_table_row_height">22dip</dimen>
+    <dimen name="way_point_item_height">65dp</dimen>
+    <dimen name="way_point_picture_width">30dip</dimen>
+    <dimen name="way_point_picture_height">20dip</dimen>
+    <dimen name="way_point_list_bottom_layout_height">55dp</dimen>
+    <dimen name="off_shift_layout_height">50dp</dimen>
+
+    <dimen name="login_form_phone_top_margin">24dp</dimen>
+    <dimen name="login_form_verification_top_margin">24dp</dimen>
+    <dimen name="login_form_email_top_margin">24dp</dimen>
+    <dimen name="login_logo_top_margin">16dp</dimen>
+    <dimen name="login_logo_left_margin">30dp</dimen>
+    <dimen name="login_logo_right_margin">30dp</dimen>
+
+    <dimen name="note_text_size">15sp</dimen>
+    <dimen name="tip_text_size">42sp</dimen>
+    <dimen name="tip_text_size_custom">25sp</dimen>
+    <dimen name="tip_text_size_none">18sp</dimen>
+    <dimen name="tip_padding_size">20dp</dimen>
+    <dimen name="tip_container_size">92dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="grey_devider_height">0.7dp</dimen>
+
+    <dimen name="navigation_drawer_width">300dp</dimen>
+    <dimen name="drawer_img_width">48dp</dimen>
+    <dimen name="drawer_img_height">48dp</dimen>
+
+    <dimen name="ocr_buttons_layout_height">80dp</dimen>
+    <dimen name="remove_floating_ic_height">56dp</dimen>
+    <dimen name="floating_layout_max_height">320dp</dimen>
+    <dimen name="floating_layout_max_width">320dp</dimen>
+    <dimen name="floating_layout_inner_view_height">270dp</dimen>
+    <dimen name="floating_layout_inner_view_width">270dp</dimen>
+    <dimen name="floating_layout_extra_padding">2dp</dimen>
+    <dimen name="floating_layout_remove_width">56dp</dimen>
+    <dimen name="floating_layout_remove_height">56dp</dimen>
+    <dimen name="floating_layout_app_ic_width">64dp</dimen>
+    <dimen name="floating_layout_app_ic_height">64dp</dimen>
+    <dimen name="floating_layout_elevation">16dp</dimen>
+
+    <dimen name="form_signature_height">280dp</dimen>
+    <dimen name="form_signature_padding_top">3dp</dimen>
+    <dimen name="button_min_width">150dp</dimen>
+    <dimen name="button_min_height">56dp</dimen>
+
+    <dimen name="scan_item_margin_right">72dp</dimen>
+    <dimen name="scan_item_padding_top_bottom">4dp</dimen>
+    <dimen name="scan_item_padding_left">16dp</dimen>
+
+    <dimen name="card_signature_sign_here_height">300dp</dimen>
+    <dimen name="card_signature_sign_here_height_on_floating_layout">150dp</dimen>
+
+    <dimen name="card_take_picture_image_height">300dp</dimen>
+    <dimen name="card_take_picture_image_height_on_floating_layout">150dp</dimen>
+    <dimen name="card_top_padding">16dp</dimen>
+
+    <dimen name="answer_text_size">20sp</dimen>
+    <dimen name="answer_padding">8dp</dimen>
+    <dimen name="collapsing_toolbar_layout_min_height">96dp</dimen>
+    <dimen name="navigation_app_icon_size">40dp</dimen>
+    <dimen name="navigation_app_icon_margin">10dp</dimen>
+    <dimen name="navigation_preference_dialog_padding">16dp</dimen>
+    <dimen name="debug_map_label_margin">2dp</dimen>
+    <dimen name="form_image_margin">12dp</dimen>
+    <dimen name="form_note_image_margin">4dp</dimen>
+
+    <dimen name="form_image_cancel_size">24dp</dimen>
+
+    <dimen name="start_task_reminder_button_text_size">24sp</dimen>
+    <dimen name="start_task_reminder_button_padding">8dp</dimen>
+    <dimen name="text_view_version_margin_bottom">24dp</dimen>
+    <dimen name="text_view_version_text_size">16dp</dimen>
+    <dimen name="signature_stroke_width">5dp</dimen>
+    <dimen name="form_logo_width">132dp</dimen>
+    <dimen name="form_logo_height">33dp</dimen>
+    <dimen name="camera_fragment_image_gallery_image_size">90dp</dimen>
+    <dimen name="list_item_task_text_top_margin">3dp</dimen>
+
+    <dimen name="sub_inventory_pricing_padding">26dp</dimen>
+
+    <dimen name="inventory_image_thumbnail_width">64dp</dimen>
+    <dimen name="inventory_image_thumbnail_height">64dp</dimen>
+    <dimen name="inventory_image_width">320dp</dimen>
+    <dimen name="inventory_image_height">320dp</dimen>
+    <dimen name="waypoint_inventory_item_bottom_padding">50dp</dimen>
+    <dimen name="chat_message_background_corner_radius">8dp</dimen>
+    <dimen name="chat_message_root_margin">8dp</dimen>
+    <dimen name="chat_message_time_margin_top">10dp</dimen>
+    <dimen name="chat_message_bubble_padding">8dp</dimen>
+    <dimen name="chat_message_time_text_size">12sp</dimen>
+    <dimen name="chat_message_body_text_size">18sp</dimen>
+    <dimen name="chat_conversation_title_margin_start_top">16dp</dimen>
+    <dimen name="incoming_task_waypoints_list_vertical_margin">30dp</dimen>
+
+    <dimen name="inventory_editable_quantity_horizontal_padding">5dp</dimen>
+    <dimen name="inventory_editable_quantity_vertical_padding">1dp</dimen>
+    <dimen name="inventory_editable_quantity_min_width">40dp</dimen>
+    <dimen name="inventory_item_layout_inner_row_top_margin">4dp</dimen>
+
+</resources>

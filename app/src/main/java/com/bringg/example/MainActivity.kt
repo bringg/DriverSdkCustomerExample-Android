@@ -1,20 +1,17 @@
 package com.bringg.example
 
-import android.app.Activity
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import com.google.zxing.integration.android.IntentIntegrator
-import driver_sdk.account.LoginCallback
-import driver_sdk.account.LoginError
-import driver_sdk.account.LoginMerchant
-import driver_sdk.account.oidc.OpenIdConnectLoginConfig
+import driver_sdk.ActiveCustomerSDKFactory
 import driver_sdk.content.ResultCallback
-import driver_sdk.customer.*
+import driver_sdk.customer.ActiveCustomerActions
+import driver_sdk.customer.ConnectResult
+import driver_sdk.customer.DisconnectResult
+import driver_sdk.customer.SdkSettings
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONObject
@@ -27,10 +24,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initCustomerActions(): ActiveCustomerActions {
-        val settings = SdkSettings.Builder()
+        // configure your sdk implementation
+        val builder = SdkSettings.Builder()
             .autoArriveByLocation(true)
             .autoLeaveByLocation(true)
-        return sdkClient.getActiveCustomerActions(settings.build())
+
+        // initialize the sdk
+        // initialize the sdk
+        val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
+        return sdkInstance.getActiveCustomerActions()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +42,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onClick(view: View) {
         when (view.id) {
-            R.id.button_login -> initiateQrScan()
+            R.id.button_login -> login()
 
             R.id.button_logout -> customerActions.logout()
 
@@ -55,11 +57,6 @@ class MainActivity : AppCompatActivity() {
                                 onActionFailure("Task $taskId failed to start (error = $result)")
                         }
                     })
-            }
-
-            R.id.button_get_active_task -> {
-                val task = customerActions.getActiveTask()
-                onActionSuccess("active task = $task")
             }
 
             R.id.button_start_sharing_location -> customerActions.beOnline(object :
@@ -92,26 +89,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun initiateQrScan() {
-        IntentIntegrator(this).initiateScan()
+    private fun login() {
+        TODO("Not yet implemented")
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data)
-        if (result != null && result.contents != null) {
-            loginWithQR(result.contents)
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        Log.d(TAG, "onRequestPermissionsResult() called with: requestCode = [$requestCode], permissions = [$permissions], grantResults = [$grantResults]")
-    }
 
     private fun loginWithQR(result: String) {
         val json = JSONObject(result)
@@ -119,21 +100,12 @@ class MainActivity : AppCompatActivity() {
         val secret = json.optString("secret")
         val region = json.optString("region")
 
-        customerActions.login(token, secret, region, object : LoginCallback {
-            override fun onLoginSuccess() {
-                onActionSuccess("onLoginSuccess()")
-            }
-
-            override fun onLoginMultipleResults(merchants: MutableList<LoginMerchant>) {
-                onActionFailure("onLoginMultipleResults() called with: merchants = [$merchants]")
-            }
-
-            override fun onLoginFailed(error: LoginError) {
-                onActionFailure("onLoginFailed() called with: error = [$error]")
-            }
-
-            override fun onShouldLoginWithSSO(config: OpenIdConnectLoginConfig) {
-                onActionFailure("onShouldLoginWithSSO() called with: config = [$config]")
+        customerActions.login(token, secret, region, object : ResultCallback<Boolean> {
+            override fun onResult(result: Boolean) {
+                if (result)
+                    onActionSuccess("onLoginSuccess()")
+                else
+                    onActionFailure("onLoginFailed() - check the log for failure reason")
             }
         })
     }
@@ -147,7 +119,14 @@ class MainActivity : AppCompatActivity() {
         Log.e(TAG, text)
         ExampleToast.makeText(this, text, R.drawable.ic_error, Toast.LENGTH_LONG).show()
     }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        Log.d(TAG, "onRequestPermissionsResult() called with: requestCode = [$requestCode], permissions = [$permissions], grantResults = [$grantResults]")
+    }
 }
 
-val Activity.sdkClient get() = (application as ExampleApp).sdkClient
 fun EditText.number() = text.toString().toLongOrNull() ?: 0

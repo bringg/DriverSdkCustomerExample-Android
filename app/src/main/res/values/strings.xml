@@ -13,4 +13,21 @@
     <string name="button_text_waypoint_leave">Leave</string>
     <string name="hint_task_id">Task</string>
     <string name="hint_waypoint_id">Waypoint</string>
+    <string name="title_activity_customer">CustomerActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">Next</string>
+    <string name="previous">Previous</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+
+    <string name="scheduled_at">"Scheduled At"</string>
+    <string name="scheduled_for">"Scheduled For"</string>
+    <string name="time_window_title">"Window"</string>
+    <string name="contact">"Contact"</string>
+    <string name="order_description">"Order Description"</string>
+    <string name="eta_title">"ETA"</string>
+
 </resources>

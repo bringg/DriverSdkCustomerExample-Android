@@ -64,13 +64,6 @@
                 android:text="@string/button_text_start_task" />
         </LinearLayout>
 
-        <Button
-            android:id="@+id/button_get_active_task"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="onClick"
-            android:text="@string/button_text_get_active_task" />
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

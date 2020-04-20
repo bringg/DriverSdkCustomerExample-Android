@@ -1,6 +1,208 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="colorPrimary">@android:color/black</color>
     <color name="colorPrimaryDark">@android:color/black</color>
     <color name="colorAccent">@android:color/black</color>
+
+    <color name="black_very_low_transparency">#d9000000</color>
+    <color name="black_low_transparency">#bb000000</color>
+    <color name="black_mid_transparency">#80000000</color>
+    <color name="black_hight_transparency">#cc000000</color>
+    <color name="black_very_hight_transparency">#e6000000</color>
+    <color name="black_most_hight_transparency">#21000000</color>
+    <color name="black_overlay">#66000000</color>
+    <color name="black">#000000</color>
+
+    <color name="very_dark_grey">#ff323232</color>
+    <color name="dark_grey">#ff626262</color>
+    <color name="dark_grey_transparent">#bf626262</color>
+    <color name="mid_dark_grey">#ff737373</color>
+    <color name="task_list_description_grey">#ff747474</color>
+    <color name="note_metadata_grey">#ff858585</color>
+    <color name="mid_grey">#ff8c8c8c</color>
+    <color name="mid_light_grey">#ff969696</color>
+    <color name="mid_light_grey_transparent">#bf969696</color>
+    <color name="divider_grey">#ffa3a3a3</color>
+    <color name="drawer_divider">#ebebeb</color>
+    <color name="some_other_grey">#ffb1b1b1</color>
+    <color name="some_other_grey_low_transparency">#c0606060</color>
+    <color name="mid_grey_low_transparency">#aa767676</color>
+    <color name="light_grey_high_transparency">#aaaaaaaa</color>
+    <color name="light_grey">#ffc0c0c0</color>
+    <color name="very_light_grey">#F6F6F6</color>
+    <color name="extra_light_grey">#ffd3d3d3</color>
+    <color name="light_light_light_grey">#ffebebeb</color>
+    <color name="light_light_grey">#ffdedede</color>
+    <color name="light_grey_seperator">#A8A8A8</color>
+    <color name="light_grey_hint">#A8A8A8</color>
+    <color name="light_grey_amount">#9D9D9D</color>
+    <color name="most_light_grey">#ffefefef</color>
+    <color name="text_light_grey">#909090</color>
+
+    <color name="grey_high_transparency">#30303030</color>
+    <color name="grey_text">#C1C1C1</color>
+    <color name="grey_light_text">#929292</color>
+
+    <color name="white_transparent">#80ffffff</color>
+
+    <color name="incoming_task_lower_bar_grey">#FF3A3A3A</color>
+
+    <color name="tab_selection_blue">#ff5b97D8</color>
+    <color name="teal">#ff91d5f8</color>
+
+    <color name="progress_button_blue_upper">#ff40a0f3</color>
+    <color name="progress_button_blue_lower">#ff3488ef</color>
+    <color name="progress_button_blue_upper_transparent">#bf40a0f3</color>
+    <color name="progress_button_blue_lower_transparent">#bf3488ef</color>
+    <color name="progress_bar">#70A4DE</color>
+
+    <color name="mid_blue">#ff227cda</color>
+    <color name="list_item_blue">#2872b1</color>
+    <color name="list_item_red">#E12C2C</color>
+    <color name="list_item_black">#000000</color>
+    <color name="blue_overlay">#ff0d6eb0</color>
+    <color name="way_point_action_blue">#ff1c7de1</color>
+    <color name="customer_info_action_blue">#ff3a85d2</color>
+
+    <color name="red">#ffdd0000</color>
+    <color name="red_top_gradient">#ffc7373b</color>
+    <color name="red_bottom_gradient">#ffb92d2f</color>
+    <color name="red_top_gradient_transparent">#bfc7373b</color>
+    <color name="red_bottom_gradient_transparent">#bfb92d2f</color>
+
+    <color name="side_menu_background">#ffdadada</color>
+    <color name="side_menu_select_background">#ffe9e9e9</color>
+    <color name="side_menu_item_bg">#ebebeb</color>
+    <color name="side_menu_on_shift_indicator">@color/mid_grey_low_transparency</color>
+
+    <color name="shadow_upper_black">#20000000</color>
+    <color name="shadow_lower_black">#01000000</color>
+    <color name="waypoint_background">#fff3f3f3</color>
+
+    <color name="simple_green">#ff00aa00</color>
+    <color name="simple_orange">#ffffaa55</color>
+    <color name="light_orange">#fff8a81c</color>
+
+    <color name="blue_action_title">#ff70A4DE</color>
+    <color name="toolbar_background">#70A4DE</color>
+    <color name="toolbar_text">#F9F9F9</color>
+
+    <color name="sorting_tabs_divider">#D1D1D1</color>
+
+    <color name="dots_background">#CCF4F4F4</color>
+    <color name="dots_active">#5B97D8</color>
+    <color name="dots_not_active">#BABABA</color>
+
+    <color name="drawer_header_background">#e5e5e5</color>
+    <color name="inventory_edited_background">#F1F1F1</color>
+
+
+    <color name="inventory_blue_text_color">#5896DA</color>
+    <color name="inventory_grey_text_color">#939393</color>
+    <color name="inventory_grey_comment_text_color">#848484</color>
+    <color name="inventory_green_deliver_background">#219024</color>
+    <color name="inventory_orange_collect_background">#E38816</color>
+    <color name="inventory_orange_ready_to_deliver">#E38816</color>
+    <color name="inventory_comment_background_color">#EAEAEA</color>
+
+    <color name="waypoint_notification_background">#63BB53</color>
+    <color name="top_notification_background">#D33939</color>
+    <color name="map_view_border_color">#c2c2c2</color>
+    <color name="map_view_marker_original_color">#70A4DE</color>
+
+    <color name="blue_row_selector">#70B5FE</color>
+
+    <color name="color_theme_icons">#70A4DE</color>
+    <color name="color_theme_buttons_upper">#bf40a0f3</color>
+    <color name="color_theme_buttons_lower">#bf3488ef</color>
+    <color name="color_theme_buttons_normal">#ff70A4DE</color>
+    <color name="color_theme_toolbar">#70A4DE</color>
+
+    <color name="end_shift_notification_bar_background">#F09310</color>
+
+
+    <color name="incoming_order_border_color">#70B5FE</color>
+    <color name="incoming_order_due_color">#5B97D8</color>
+    <color name="white">#FFFFFF</color>
+    <color name="floating_screen_light_gray_border">#ff969696</color>
+
+    <color name="task_actions_fragment_bg">#f270A4DE</color>
+
+    <color name="task_list_item_selected">#F0F0F0</color>
+    <color name="task_list_item_off_shift">#e2e2e2</color>
+    <color name="task_list_bg_on_shift">#F0F0F0</color>
+    <color name="task_list_bg_off_shift">#ffd3d3d3</color>
+    <color name="need_to_leave_title_color">#E91515</color>
+    <color name="pending_tasks_bottom_bg_color">#F2F2F2</color>
+    <color name="pending_tasks_bottom_divider_color">#979797</color>
+
+    <color name="floating_button_default_color">#349EFF</color>
+
+    <color name="card_signature_first_title">#66000000</color>
+    <color name="dashed_rectangle_color">#c3c3c3</color>
+    <color name="card_signature_sign_here">#bababa</color>
+    <color name="card_signature_clear">#70b5fe</color>
+
+    <color name="card_action_text">#70b5fe</color>
+
+    <color name="order_selection_base_color">#cecece</color>
+    <color name="order_selection_base_color_with_opacity">#1ececece</color>
+    <color name="time_window_late_color">#f64114</color>
+    <color name="time_window_late_delayed_color">#929292</color>
+    <color name="scan_mode_button_bg_color">#cc000000</color>
+    <color name="group_items_reset_button_bg_color">#cc000000</color>
+
+    <color name="defaultColor">#70A4DE</color>
+    <color name="selectedColor">#66666666</color>
+    <color name="ltgray">#FFCCCCCC</color>
+
+    <color name="task_list_item_grab_color">#7c90cd</color>
+    <color name="task_list_item_pickup_color">#DF822D</color>
+    <color name="task_list_item_unaccept_color">#777777</color>
+    <color name="task_list_item_deliver_color">#76b85a</color>
+
+    <color name="signature">#207ccd</color>
+
+    <color name="inventory_text_disabled">#abaaaa</color>
+    <color name="inventory_background_disabled">#e8e8e8</color>
+
+    <color name="scan_message_background">#2a2a2a</color>
+    <color name="form_photo_bg">#4000</color>
+    <color name="bg_camera_control_view_start_gradient">#a3000000</color>
+
+    <color name="switch_unchecked_thumb">#e5e5e5</color>
+    <color name="switch_unchecked_track">#000000</color>
+    <color name="customer_address_type">#77777777</color>
+
+    <color name="form_bg">#EDECED</color>
+    <color name="form_subtitle_color">#6D6D6D</color>
+
+    <color name="pricing_summary_table_header_background">#DFDFDF</color>
+    <color name="pricing_summary_table_cell_background_1">@color/very_light_grey</color>
+    <color name="pricing_summary_table_cell_background_2">@color/white</color>
+    <color name="pricing_summary_table_text_color">#313131</color>
+    <color name="pricing_summary_rejected__col_text_color">#FF0000</color>
+
+    <color name="inventory_image_placeholder_background">#ffc0c0c0</color>
+    <color name="inventory_list_item_selected_background">#EFEFEF</color>
+    <color name="inventory_list_item_quantity_text">#525252</color>
+    <color name="inventory_list_item_indicator_color_item_not_applied">#FFCF02</color>
+
+    <color name="carnation">#F33D1B</color>
+
+    <color name="inventory_summary_even_item_background">#F7F7F7</color>
+
+    <color name="scan_dialog_error">#FF2E00</color>
+    <color name="scan_dialog_success">#05A528</color>
+    <color name="scan_dialog_info">@color/white</color>
+
+    <color name="actions_list_divider">#E1E1E1</color>
+    <color name="action_checked">#05A528</color>
+    <color name="chat_accent_color">#0E7CFF</color>
+    <color name="chat_failed_to_send_background_color">#13D0021B</color>
+    <color name="chat_notification_start_shift_color">#FF9302</color>
+
+    <color name="service_plan_label_background_color">@color/black</color>
+
+    <color name="sos_button">#FF4422</color>
 </resources>

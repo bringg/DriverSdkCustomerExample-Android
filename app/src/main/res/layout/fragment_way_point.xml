@@ -1,0 +1,74 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:orientation="vertical">
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/llScrollViewChild"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:descendantFocusability="blocksDescendants"
+            android:orientation="vertical">
+            <FrameLayout
+                android:id="@+id/flCustomerDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rvCards"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:paddingTop="@dimen/card_top_padding" />
+
+            <FrameLayout
+                android:id="@+id/flInventories"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:id="@+id/flPricing"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <FrameLayout
+                android:id="@+id/flScans"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/way_point_notes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:divider="@color/light_light_grey"
+                android:dividerHeight="1px"
+                android:paddingTop="20dp"
+                android:scrollbars="none" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+    <TextView
+        android:id="@+id/checked_out_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5dp"
+        android:textColor="@android:color/black"
+        android:textSize="15sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

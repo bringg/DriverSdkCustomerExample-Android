@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="6dp">
+
+    <TextView
+        android:id="@+id/tv_remaining_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:textSize="12sp"
+        android:gravity="start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.1"
+        tools:text="2" />
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:gravity="start"
+        app:layout_constraintStart_toEndOf="@id/tv_remaining_quantity"
+        app:layout_constraintEnd_toStartOf="@+id/tv_total_quantity"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.5"
+        tools:text="Lorem ipsum sit amet dolor estLorem ipsum sit amet dolor est" />
+
+    <TextView
+        android:id="@+id/tv_total_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
+        android:layout_marginRight="12dp"
+        android:gravity="end"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@id/tv_price"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.3"
+        tools:text="10" />
+
+    <TextView
+        android:id="@+id/tv_rejected_quantity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:textSize="11sp"
+        app:layout_constraintStart_toStartOf="@+id/tv_total_quantity"
+        app:layout_constraintTop_toBottomOf="@+id/tv_total_quantity"
+        app:layout_constraintWidth_percent="0.3"
+        tools:ignore="SmallSp"
+        tools:text="10 rejected" />
+
+    <TextView
+        android:id="@+id/tv_price"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="12sp"
+        android:gravity="end"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_percent="0.15"
+        tools:text="150.18" />
+
+    <TextView
+        android:id="@+id/inventory_comment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="3dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="3dp"
+        android:gravity="start"
+        android:textSize="10sp"
+        app:layout_constraintWidth_percent="0.5"
+        app:layout_constraintEnd_toEndOf="@+id/tv_name"
+        app:layout_constraintStart_toStartOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        tools:ignore="SmallSp"
+        tools:text="notenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenote" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
