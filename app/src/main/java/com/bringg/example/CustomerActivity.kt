@@ -56,7 +56,7 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
     //            }
      */
     private fun login() {
-        customerActionsSDK.login("2372ceb3-4f1c-4924-80c7-81a2167e3632", "e8b237dd-a9e1-42dc-8dac-506818cfc8b4", "us-east-1", object : ResultCallback<Boolean> {
+        customerActionsSDK.login("ac77c2d3-6555-461b-9b61-4444ecbb9f19", "72f0ae3d-d1aa-436e-b117-2d04159849f9", "us-east-1", object : ResultCallback<Boolean> {
             override fun onResult(result: Boolean) {
                 // true = successful login, false = login error.
                 if (result)
@@ -136,7 +136,7 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
      * Manual action could be used otherwise or as a fallback.
      */
     private fun arrive(task: Task) {
-        val result = customerActionsSDK.arriveToWaypoint(task.getId(), task.currentWayPoint.id)
+        val result = customerActionsSDK.arriveToWaypoint(task.getId())
         if (result.result == TaskActionConstants.ACTION_SUCCESS) {
             showArrivedUI(task)
         } else {
@@ -149,7 +149,7 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
      * Order with a single destination will now be done, orders with multiple destinations will proceed to the next destination.
      */
     private fun leave(task: Task) {
-        val result = customerActionsSDK.leaveWaypoint(task.getId(), task.currentWayPoint.id)
+        val result = customerActionsSDK.leaveWaypoint(task.getId())
         if (result.success()) {
             showLeftDestinationUI(task)
         } else {
@@ -175,6 +175,8 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
     }
 
     private fun showOnlineUI() {
+        // SDK requires location permissions to track gps locations
+        PermissionVerifier.requestLocationPermissions(this)
         current_state.text = "Online, all monitoring services are on, waiting for order"
     }
 

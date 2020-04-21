@@ -10,6 +10,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import com.bringg.example.R
+import com.bumptech.glide.Glide
 import driver_sdk.models.Task
 import driver_sdk.models.Waypoint
 import kotlinx.android.synthetic.main.fragment_waypoint_list_header.view.*
@@ -49,7 +50,7 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
     private fun updateCustomer(waypoint: Waypoint) {
         val customer = waypoint.customer
         customer_name.text = customer.getName()
-        val customerImage = findViewById<ImageView>(R.id.customer_image)
+        Glide.with(this).load(customer.imageUrl).into(customer_image);
     }
 
     private fun updateTimeWindowDetails() {

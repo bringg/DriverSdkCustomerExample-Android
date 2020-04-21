@@ -78,13 +78,11 @@ class MainActivity : AppCompatActivity() {
             })
 
             R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint(
-                taskWpIdEditText.number(),
-                wpIdEditText.number()
+                taskWpIdEditText.number()
             )
 
             R.id.button_waypoint_leave -> customerActions.leaveWaypoint(
-                taskWpIdEditText.number(),
-                wpIdEditText.number()
+                taskWpIdEditText.number()
             )
         }
     }
