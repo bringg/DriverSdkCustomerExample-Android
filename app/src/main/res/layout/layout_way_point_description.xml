@@ -4,11 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@android:color/white"
-    android:orientation="vertical"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingTop="5dp"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingBottom="5dp">
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/way_point_description"

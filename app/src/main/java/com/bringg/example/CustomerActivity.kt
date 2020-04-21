@@ -33,85 +33,95 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
         val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
         customerActionsSDK = sdkInstance.getActiveCustomerActions()
 
+        // when user already logged in we can skip login
         if (customerActionsSDK.isLoggedIn()) {
-            onSuccessfulLogin()
+            showLoggedInUI()
         } else {
-            button_next_customer_action.text = "Login to Bringg"
-            button_next_customer_action.setOnClickListener {
-                login()
-            }
+            showLoginUI()
         }
     }
 
+    /**
+     * Log in user to Bringg platform
+     * this has to be done before all other SDK calls
+    // login tokens should be generated using:
+    // https://developers.bringg.com/reference#generate-customer-one-time-code
+    // response looks like this:
+    //            {
+    //               "success": true,
+    //                "rc": 0,
+    //                "access_token": "92f5b501-72a8-4ac9-a75f-6800191bc5cf",
+    //                "secret": "e0fca3a3-9725-4ddb-b659-6b1d64f613af",
+    //                "region": "us-east-1"
+    //            }
+     */
     private fun login() {
-        current_state.text = "Logging in to Bringg..."
-
-        // login tokens should be generated using:
-        // https://developers.bringg.com/reference#generate-customer-one-time-code
-        // response looks like this:
-        //            {
-        //               "success": true,
-        //                "rc": 0,
-        //                "access_token": "92f5b501-72a8-4ac9-a75f-6800191bc5cf",
-        //                "secret": "e0fca3a3-9725-4ddb-b659-6b1d64f613af",
-        //                "region": "us-east-1"
-        //            }
-
-        customerActionsSDK.login("1b3196b8-0a96-4225-b9c4-00bd8561c24d", "bcd919c3-9a7f-4b6b-af84-06e2e64cb582", "us-east-1", object : ResultCallback<Boolean> {
+        customerActionsSDK.login("2372ceb3-4f1c-4924-80c7-81a2167e3632", "e8b237dd-a9e1-42dc-8dac-506818cfc8b4", "us-east-1", object : ResultCallback<Boolean> {
             override fun onResult(result: Boolean) {
                 // true = successful login, false = login error.
                 if (result)
-                    onSuccessfulLogin()
+                    showLoggedInUI()
                 else
                     current_state.text = "Login error - login failed, check logs for reason"
             }
         })
     }
 
-    private fun onSuccessfulLogin() {
-        current_state.text = "Logged in to Bringg"
-
+    /**
+     * Be Online will start the SDK background services, location and ETA tracking and network communication to Bringg cloud services.
+     * Calling this has to be done after user is logged in to Bringg platform see #login() for login example.
+     * After user is online active order will be fetched automatically from Bringg cloud services
+     * Bringg SDK will be now monitoring locations, beacons, events, orders, etc.
+     * SDK monitoring will stop after the active order is done or after calling #customerActionsSDK.beOffline
+     * This should be called when the user is starting the journey to the pickup destination.
+     * customerActionsSDK expose active user order live data used to display order UI and perform manual actions (start/arrive/left)
+     */
+    private fun becomeOnline() {
+        // observe active user order, display order UI and perform manual actions (start/arrive/left)
         customerActionsSDK.activeTaskLiveData().observe(this, Observer { onActiveTaskChanged(it) })
 
-        button_next_customer_action.text = "Become Online"
-        button_next_customer_action.setOnClickListener { becomeOnline() }
+        customerActionsSDK.beOnline(object : ResultCallback<ConnectResult> {
+            override fun onResult(result: ConnectResult) {
+                when (result) {
+                    ConnectResult.SUCCESS -> showOnlineUI()
+                    else -> current_state.text = "Error trying to get online, check logs for reason, result=${result.name}"
+                }
+            }
+        })
     }
 
+    /**
+     * This is a simple implementation observing the current active order for current online user
+     * Observer is registered to customerActionsSDK.activeTaskLiveData to get user active order
+     * see #becomeOnline for observer registration example
+     */
     private fun onActiveTaskChanged(task: Task?) {
         waypoints_container.removeAllViews()
         if (task == null) {
-            onBecomeOnline();
+            showOnlineUI();
         } else {
             current_state.text = "Got active order, order status=${task.status}"
             task.wayPoints.forEach { waypoints_container.addView(WaypointView.newInstance(this, task, it.id)) }
             if (!task.isStarted)
-                onNewOrder(task)
+                showStartOrderUI(task)
             else if (task.currentWayPoint.isCheckedIn)
-                onArrived(task)
+                showArrivedUI(task)
             else if (task.isDone)
-                onOrderDone()
+                showOrderDoneUI()
             else
-                onLeft(task)
+                showLeftDestinationUI(task)
         }
     }
 
-    private fun onOrderDone() {
-        button_next_customer_action.text = "Order Done"
-        button_next_customer_action.setOnClickListener(null)
-    }
-
-    private fun onNewOrder(task: Task) {
-        button_next_customer_action.text = "Start Order"
-        button_next_customer_action.setOnClickListener {
-            startOrder(task)
-        }
-    }
-
+    /**
+     * When a new order is created and assigned to the user first step on the order lifecycle is start order
+     * This call will notify that the user has started his journey to the first destination of this order and after the order
+     */
     private fun startOrder(task: Task) {
         customerActionsSDK.startTask(task.getId(), object : ResultCallback<StartTaskResult> {
             override fun onResult(result: StartTaskResult) {
                 if (StartTaskResult.SUCCESS == result) {
-                    onOrderStarted(task)
+                    showOrderStartedUI(task)
                 } else {
                     current_state.text = "Error trying to start order, check logs for reason, result=${result.name}"
                 }
@@ -119,52 +129,95 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
         })
     }
 
-    private fun onOrderStarted(task: Task) {
-        current_state.text = "Started active order, order status=${task?.status}"
+    /**
+     * After successfully starting the order (see #startOrder) you can manually notify your arrival to the destination
+     * When SdkSetting is configured with autoArriveByLocation = true arriving to the destination will be done
+     * automatically by SDK monitoring and tracking services.
+     * Manual action could be used otherwise or as a fallback.
+     */
+    private fun arrive(task: Task) {
+        val result = customerActionsSDK.arriveToWaypoint(task.getId(), task.currentWayPoint.id)
+        if (result.result == TaskActionConstants.ACTION_SUCCESS) {
+            showArrivedUI(task)
+        } else {
+            current_state.text = "Error trying to arrive to waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result.result}"
+        }
+    }
+
+    /**
+     * After the user has arrived to the destination, leaving the destination will complete the current journey.
+     * Order with a single destination will now be done, orders with multiple destinations will proceed to the next destination.
+     */
+    private fun leave(task: Task) {
+        val result = customerActionsSDK.leaveWaypoint(task.getId(), task.currentWayPoint.id)
+        if (result.success()) {
+            showLeftDestinationUI(task)
+        } else {
+            current_state.text = "Error trying to leave waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result}"
+        }
+    }
+
+    private fun showLoginUI() {
+        button_next_customer_action.text = "Login to Bringg"
+        button_next_customer_action.setOnClickListener {
+            current_state.text = "Logging in to Bringg..."
+            login()
+        }
+    }
+
+    private fun showLoggedInUI() {
+        current_state.text = "Logged in to Bringg"
+        button_next_customer_action.text = "Become Online"
+        button_next_customer_action.setOnClickListener {
+            current_state.text = "Starting SDK services"
+            becomeOnline()
+        }
+    }
+
+    private fun showOnlineUI() {
+        current_state.text = "Online, all monitoring services are on, waiting for order"
+    }
+
+    private fun showStartOrderUI(task: Task) {
+        button_next_customer_action.text = "Start Order"
+        button_next_customer_action.setOnClickListener {
+            startOrder(task)
+        }
+    }
+
+    private fun showOrderStartedUI(task: Task) {
+        current_state.text = "Started active waypoint,\n" +
+                "destination=${task.currentWayPoint.address}\n" +
+                "order status=${task.status}\n" +
+                "waypoint status=${task.currentWayPoint.state}"
         button_next_customer_action.text = "I Arrived!!"
         button_next_customer_action.setOnClickListener {
             arrive(task)
         }
     }
 
-    private fun arrive(task: Task) {
-        val result = customerActionsSDK.arriveToWaypoint(task.getId(), task.currentWayPoint.id)
-        if (result.result == TaskActionConstants.ACTION_SUCCESS) {
-            onArrived(task)
-        } else {
-            current_state.text = "Error trying to arrive to waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result.result}"
-        }
-    }
-
-    private fun onArrived(task: Task) {
+    private fun showArrivedUI(task: Task) {
         current_state.text = "Arrived to destination"
+        button_next_customer_action.text = "I've Left the destination"
         button_next_customer_action.setOnClickListener {
-            val result = customerActionsSDK.leaveWaypoint(task.getId(), task.currentWayPoint.id)
-            if (result.success()) {
-                onLeft(task)
-            } else {
-                current_state.text = "Error trying to leave waypoint ${task.currentWayPoint.id}, check logs for reason, result=${result}"
-            }
+            leave(task)
         }
     }
 
-    private fun onLeft(task: Task) {
+    private fun showLeftDestinationUI(task: Task) {
         current_state.text = "Left destination, order is done=${task.isDone}"
+        if (task.isDone || task.currentWayPoint == null) {
+            button_next_customer_action.setOnClickListener(null)
+            button_next_customer_action.isEnabled = false
+            button_next_customer_action.text = "Order Done"
+        } else {
+            showOrderStartedUI(task)
+        }
     }
 
-    private fun becomeOnline() {
-        customerActionsSDK.beOnline(object : ResultCallback<ConnectResult> {
-            override fun onResult(result: ConnectResult) {
-                when (result) {
-                    ConnectResult.SUCCESS -> onBecomeOnline()
-                    else -> current_state.text = "Error trying to get online, check logs for reason, result=${result.name}"
-                }
-            }
-        })
-    }
-
-    private fun onBecomeOnline() {
-        current_state.text = "Online, all monitoring services are on, waiting for order"
+    private fun showOrderDoneUI() {
+        button_next_customer_action.text = "Order Done"
+        button_next_customer_action.setOnClickListener(null)
     }
 
     override fun onTaskArrived() {
@@ -174,5 +227,4 @@ class CustomerActivity : AppCompatActivity(), ActiveCustomerTaskStateListener {
     override fun onTaskDone() {
         current_state.text = "Order done"
     }
-
 }
