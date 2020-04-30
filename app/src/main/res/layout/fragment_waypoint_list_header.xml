@@ -2,9 +2,25 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="10dp">
+    android:padding="3dp">
+
+    <TextView
+        android:id="@+id/waypoint_is_current_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:background="@color/inventory_green_deliver_background"
+        android:paddingStart="5dp"
+        android:paddingTop="2dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="2dp"
+        android:layout_marginBottom="3dp"
+        android:text="CURRENT DESTINATION"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textStyle="bold" />
 
     <LinearLayout
         android:id="@+id/current_way_point_item"
@@ -12,31 +28,12 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <FrameLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/way_point_status_label_text"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp">
-
-            <TextView
-                android:id="@+id/way_point_pending_label_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:textAllCaps="true"
-                tools:text="PICKUP" />
-
-            <TextView
-                android:id="@+id/way_point_service_plan_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end"
-                android:layout_marginStart="8dp"
-                android:includeFontPadding="false"
-                android:textAllCaps="true"
-                tools:text="Premium" />
-        </FrameLayout>
+            android:layout_marginTop="3dp"
+            tools:text="STARTED" />
 
         <!-- address -->
         <TextView
@@ -107,6 +104,7 @@
     <FrameLayout
         android:id="@+id/inventory_list"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:layout_marginTop="5dp" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="3dp" />
 </LinearLayout>

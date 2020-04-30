@@ -14,7 +14,6 @@ import driver_sdk.customer.DisconnectResult
 import driver_sdk.customer.SdkSettings
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.activity_main.*
-import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
     val TAG = "CustomerActions"
@@ -26,10 +25,7 @@ class MainActivity : AppCompatActivity() {
     private fun initCustomerActions(): ActiveCustomerActions {
         // configure your sdk implementation
         val builder = SdkSettings.Builder()
-            .autoArriveByLocation(true)
-            .autoLeaveByLocation(true)
 
-        // initialize the sdk
         // initialize the sdk
         val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
         return sdkInstance.getActiveCustomerActions()
@@ -77,29 +73,16 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint(
-                taskWpIdEditText.number()
-            )
+            R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint()
 
-            R.id.button_waypoint_leave -> customerActions.leaveWaypoint(
-                taskWpIdEditText.number()
-            )
+            R.id.button_waypoint_leave -> customerActions.leaveWaypoint()
         }
     }
 
     private fun login() {
-        TODO("Not yet implemented")
-    }
-
-
-    private fun loginWithQR(result: String) {
-        val json = JSONObject(result)
-        val token = json.optString("token")
-        val secret = json.optString("secret")
-        val region = json.optString("region")
-
-        customerActions.login(token, secret, region, object : ResultCallback<Boolean> {
+        customerActions.login("e9896364-e545-42c5-80f8-53107b7c3df8", "3ea3d8fe-443a-488f-b024-3adb61f762e6", "us-east-1", object : ResultCallback<Boolean> {
             override fun onResult(result: Boolean) {
+                // true = successful login, false = login error.
                 if (result)
                     onActionSuccess("onLoginSuccess()")
                 else

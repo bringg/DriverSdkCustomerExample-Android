@@ -14,14 +14,6 @@
     <string name="hint_task_id">Task</string>
     <string name="hint_waypoint_id">Waypoint</string>
     <string name="title_activity_customer">CustomerActivity</string>
-    <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
-
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 
     <string name="scheduled_at">"Scheduled At"</string>
     <string name="scheduled_for">"Scheduled For"</string>
@@ -29,5 +21,9 @@
     <string name="contact">"Contact"</string>
     <string name="order_description">"Order Description"</string>
     <string name="eta_title">"ETA"</string>
-
+    <string name="inventory_pricing_amount_paid">"Amount paid"</string>
+    <string name="create_order_desc">"To Begin:\nCreate order with \"task_type_id\": 6 on Bringg see https://developers.bringg.com/reference#create-task\nWhen creating order for an existing customer add Brinng \"customer_id\" to the request payload."</string>
+    <string name="login_description">\n\nBefore all other SDK calls user has to Log in to Bringg platform:\nLogin tokens should be generated using the \"user_id\" parameter found on the create order response payload, see https://developers.bringg.com/reference#generate-customer-one-time-code\n\nUse tokens from response payload to login:</string>
+    <string name="logged_in_text">Whats next?\nAfter log-in you can:\n1. Call customerActionsSDK.beOnline to let the SDK fetch the user order from Bringg Cloud Services. \n2. You have a specific Bringg task_id for this user - call customerActionsSDK.startTask(task_id,callback) to activate and start the order flow.\n</string>
+    <string name="become_offline">Become Offline</string>
 </resources>

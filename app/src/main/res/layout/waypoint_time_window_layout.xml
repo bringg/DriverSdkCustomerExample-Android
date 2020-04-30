@@ -37,7 +37,7 @@
         android:textSize="12sp" />
 
     <LinearLayout
-        android:id="@+id/time_window_and_eta_container"
+        android:id="@+id/time_window_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"

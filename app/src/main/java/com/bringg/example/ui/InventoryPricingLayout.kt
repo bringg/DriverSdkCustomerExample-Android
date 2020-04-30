@@ -7,6 +7,7 @@ import com.bringg.example.R
 import driver_sdk.models.InventoryItem
 import driver_sdk.models.Task
 import driver_sdk.models.Waypoint
+import driver_sdk.models.enums.PaymentMethod
 import driver_sdk.util.annotations.Mockable
 import kotlinx.android.synthetic.main.layout_inventory_pricing.view.*
 
@@ -50,5 +51,10 @@ class InventoryPricingLayout : ConstraintLayout {
         this.fallbackTitle = task.title
         this.inventoryItems = waypoint.flattenedInventoryList.toMutableList()
         list_inventory_items.adapter = InventoryPricingAdapter(inventoryItems, fallbackTitle)
+    }
+
+    fun setAmountPaid(paidAmount: Double, paymentMethod: PaymentMethod) {
+        tv_amount_paid_label.text = "Amount paid (${paymentMethod.name})"
+        tv_amount_paid_value.text = pricingFormat.format(paidAmount)
     }
 }

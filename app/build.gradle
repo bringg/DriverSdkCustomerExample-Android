@@ -11,7 +11,7 @@ android {
         minSdkVersion 24
         targetSdkVersion 29
         versionCode 1
-        versionName '1.1.325'
+        versionName 'CustomerExampleApp v1'
     }
 
     compileOptions {
@@ -34,7 +34,7 @@ android {
 
 dependencies {
 
-    implementation 'com.bringg:driver_sdk:1.0.103.34.13-SNAPSHOT'
+    implementation 'com.bringg:driver_sdk:1.0.104.00.00-SNAPSHOT'
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.1.0'
