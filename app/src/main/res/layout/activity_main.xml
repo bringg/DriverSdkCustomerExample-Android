@@ -69,29 +69,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/button_start_sharing_location"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:onClick="onClick"
-                android:text="@string/button_text_start_sharing_location" />
-
-            <Button
-                android:id="@+id/button_stop_sharing_location"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:onClick="onClick"
-                android:text="@string/button_text_stop_sharing_location" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
             <EditText
                 android:id="@+id/taskWpIdEditText"
                 android:layout_width="wrap_content"

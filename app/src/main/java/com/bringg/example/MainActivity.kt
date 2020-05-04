@@ -55,24 +55,6 @@ class MainActivity : AppCompatActivity() {
                     })
             }
 
-            R.id.button_start_sharing_location -> customerActions.beOnline(object :
-                ResultCallback<ConnectResult> {
-                override fun onResult(result: ConnectResult) {
-                    if (result == ConnectResult.SUCCESS)
-                        onActionSuccess("onResult() called with: result = [$result]")
-                    else onActionFailure("onResult() called with error = [$result]")
-                }
-            })
-
-            R.id.button_stop_sharing_location -> customerActions.beOffline(object :
-                ResultCallback<DisconnectResult> {
-                override fun onResult(result: DisconnectResult) {
-                    if (result == DisconnectResult.SUCCESS)
-                        onActionSuccess("onResult() called with: result = [$result]")
-                    else onActionFailure("onResult() called with error = [$result]")
-                }
-            })
-
             R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint()
 
             R.id.button_waypoint_leave -> customerActions.leaveWaypoint()

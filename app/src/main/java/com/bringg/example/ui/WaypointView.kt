@@ -1,10 +1,8 @@
 package com.bringg.example.ui
 
 import android.content.Context
-import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import com.bringg.example.R
@@ -38,9 +36,6 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         secondLineAddress = headerView.findViewById(R.id.way_point_second_address)
         customerAddressType = headerView.findViewById(R.id.customer_address_type)
         customerAddressName = headerView.findViewById(R.id.customer_address_name)
-        val waypointDescriptionLayout = headerView.findViewById<LinearLayout>(R.id.waypoint_description_layout)
-        val waypointDescriptionText = waypointDescriptionLayout.findViewById<TextView>(R.id.way_point_description_text)
-        waypointDescriptionText.text = task.title
         inventoryLayout = InventoryPricingLayout(context)
         inventoryLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         inventory_list.addView(inventoryLayout)
@@ -70,10 +65,8 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         }
 
         if (waypoint.noEarlierThan.isNullOrBlank() && waypoint.noLaterThan.isNullOrBlank()) {
-            time_window_container.visibility = View.GONE
             time_window_title.visibility = View.GONE
         } else {
-            time_window_container.visibility = View.VISIBLE
             time_window_title.visibility = View.VISIBLE
             if (waypoint.noEarlierThan.isNullOrBlank()) {
                 time_window_start.visibility = View.GONE
@@ -101,7 +94,8 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
     }
 
     private fun updateStatus() {
-        way_point_status_label_text.text = "Waypoint Status: ${TaskStatusMap.getUserStatus(waypoint.status).toUpperCase(Locale.US)} (${task.status})"
+        findViewById<TextView>(R.id.way_point_description_text).text = task.title
+        way_point_status_label_text.text = "${TaskStatusMap.getUserStatus(waypoint.status).toUpperCase(Locale.US)} (${task.status})"
         waypoint_is_current_label.visibility = if (waypoint.id == task.currentWayPointId) View.VISIBLE else GONE
     }
 
@@ -115,22 +109,19 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
 
     private fun getFormattedAddressText(): StringBuilder {
         val sb = StringBuilder()
-        sb.append(waypoint.houseNumber).append(" ")
-        sb.append(waypoint.address)
-
-        if (!TextUtils.isEmpty(waypoint.borough)) {
-            sb.append(", ").append(waypoint.borough)
-        }
-        if (!TextUtils.isEmpty(waypoint.city)) {
-            sb.append(", ").append(waypoint.city)
-        }
-        if (!TextUtils.isEmpty(waypoint.state)) {
-            sb.append(", ").append(waypoint.state)
-        }
-        if (!TextUtils.isEmpty(waypoint.zipCode)) {
-            sb.append(", ").append(waypoint.zipCode)
-        }
+        appendValue(waypoint.houseNumber, sb)
+        appendValue(waypoint.address, sb)
+        appendValue(waypoint.borough, sb)
+        appendValue(waypoint.city, sb)
+        appendValue(waypoint.state, sb)
+        appendValue(waypoint.zipCode, sb)
         return sb
+    }
+
+    private fun appendValue(value: String?, sb: StringBuilder) {
+        if (!value.isNullOrBlank()) {
+            sb.append(value).append(" ")
+        }
     }
 
     private fun updateInventoryList() {

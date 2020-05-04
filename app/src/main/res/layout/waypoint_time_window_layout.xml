@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/time_window_layout"
     android:layout_width="match_parent"
@@ -14,83 +15,85 @@
         android:includeFontPadding="false"
         android:text="@string/scheduled_for"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/scheduled_for_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
         android:includeFontPadding="false"
-        android:padding="5dp"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/scheduled_for_title"
+        app:layout_constraintTop_toTopOf="@+id/scheduled_for_title"
         tools:text="19e2ei09njkfbds kjndkljk " />
 
     <TextView
         android:id="@+id/time_window_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginTop="3dp"
         android:includeFontPadding="false"
         android:text="@string/time_window_title"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/scheduled_for_title" />
 
-    <LinearLayout
-        android:id="@+id/time_window_container"
-        android:layout_width="wrap_content"
+    <TextView
+        android:id="@+id/time_window_start"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="5dp">
+        android:layout_marginStart="5dp"
+        android:includeFontPadding="false"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/time_window_title"
+        app:layout_constraintTop_toTopOf="@+id/time_window_title"
+        tools:text="00:00" />
 
-        <TextView
-            android:id="@+id/time_window_start"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            tools:text="00:00" />
+    <TextView
+        android:id="@+id/time_window_separator"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="5dp"
+        android:includeFontPadding="false"
+        android:text="-"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/time_window_start"
+        app:layout_constraintTop_toTopOf="@+id/time_window_start" />
 
-        <TextView
-            android:id="@+id/time_window_hyphen"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="2dp"
-            android:layout_marginLeft="2dp"
-            android:layout_marginEnd="2dp"
-            android:layout_marginRight="2dp"
-            android:includeFontPadding="false"
-            android:text="-"
-            android:textColor="@android:color/darker_gray" />
-
-        <TextView
-            android:id="@+id/time_window_end"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:includeFontPadding="false"
-            android:textColor="@color/black"
-            android:textSize="14sp"
-            tools:text="00:00" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/time_window_end"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:includeFontPadding="false"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toEndOf="@+id/time_window_separator"
+        app:layout_constraintTop_toTopOf="@+id/time_window_separator"
+        tools:text="00:00" />
 
     <TextView
         android:id="@+id/eta_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
         android:includeFontPadding="false"
         android:text="@string/eta_title"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/time_window_title" />
 
     <TextView
         android:id="@+id/eta_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
         android:includeFontPadding="false"
-        android:padding="5dp"
         android:textColor="@color/black"
-        android:textSize="14sp"
+        app:layout_constraintStart_toEndOf="@+id/eta_title"
+        app:layout_constraintTop_toTopOf="@+id/eta_title"
         tools:text="00:00" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

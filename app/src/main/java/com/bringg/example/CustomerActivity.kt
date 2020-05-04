@@ -3,31 +3,37 @@ package com.bringg.example
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
 import driver_sdk.ActiveCustomerSDKFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
-import driver_sdk.customer.ConnectResult
-import driver_sdk.customer.DisconnectResult
 import driver_sdk.customer.SdkSettings
 import driver_sdk.models.Task
 import driver_sdk.models.TaskActionConstants
 import driver_sdk.models.TaskState
 import driver_sdk.models.TaskStates
 import driver_sdk.tasks.start.StartTaskResult
+import kotlinx.android.synthetic.main.active_order_layout.*
 import kotlinx.android.synthetic.main.activity_customer.*
+import kotlinx.android.synthetic.main.logged_in_layout.*
 import kotlinx.android.synthetic.main.login_layout.*
 import java.util.*
 
 class CustomerActivity : AppCompatActivity() {
 
+    // sdk instance
     private lateinit var customerActionsSDK: ActiveCustomerActions
 
-    private var menuBecomeOffline: MenuItem? = null
+    // state live data:
+    private lateinit var loggedInLiveData: LiveData<Boolean>
+    private lateinit var onlineLiveData: LiveData<Boolean>
+    private lateinit var activeTaskLiveData: LiveData<TaskState>
+
+    // option menu items
     private var menuLogout: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,8 +51,40 @@ class CustomerActivity : AppCompatActivity() {
         // initialize the sdk
         val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
         customerActionsSDK = sdkInstance.getActiveCustomerActions()
+
+        // take reference to state live data objects:
+        loggedInLiveData = sdkInstance.isLoggedIn()
+        onlineLiveData = sdkInstance.isOnline()
+        activeTaskLiveData = sdkInstance.activeTask()
+
+        // observe login state
+        loggedInLiveData.observe(this, Observer { isLoggedIn -> onLoginStateChanged(isLoggedIn) })
+        // observe online state
+        onlineLiveData.observe(this, Observer { isOnline -> onOnlineStateChanged(isOnline) })
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
-        sdkInstance.activeTaskLiveData().observe(this, Observer { onActiveOrderChanged(it) })
+        activeTaskLiveData.observe(this, Observer { onActiveOrderChanged(it) })
+
+
+        button_login.setOnClickListener { login() }
+        button_start_task.setOnClickListener {
+            val taskId = input_start_task_id.editText?.text.toString().toLongOrNull()
+            if (taskId == null) {
+                input_start_task_id.error = "Not a valid task_id"
+                return@setOnClickListener
+            }
+            input_start_task_id.error = null
+
+            startOrderById(taskId)
+        }
+    }
+
+    private fun startOrderById(taskId: Long) {
+        customerActionsSDK.startTask(taskId, object : ResultCallback<StartTaskResult> {
+            override fun onResult(result: StartTaskResult) {
+                if (StartTaskResult.SUCCESS != result)
+                    current_state_text.text = "Error trying to start order, check logs for reason, result=${result.name}"
+            }
+        })
     }
 
     /**
@@ -67,9 +105,10 @@ class CustomerActivity : AppCompatActivity() {
         val token = text_input_token.editText?.text.toString()
         val secret = text_input_secret.editText?.text.toString()
         val region = text_input_region.editText?.text.toString()
-        if (token.isBlank()) {
-            text_input_token.error = "Token is mandatory"
-        }
+
+        if (hasMissingData(token, secret, region)) return
+
+        current_state_text.text = "Logging in to Bringg..."
         customerActionsSDK.login(token, secret, region, object : ResultCallback<Boolean> {
             override fun onResult(result: Boolean) {
                 // true = successful login, false = login error.
@@ -81,35 +120,29 @@ class CustomerActivity : AppCompatActivity() {
         })
     }
 
-    /**
-     * Be Online will start the SDK background services, location and ETA tracking and network communication to Bringg cloud services.
-     * Calling this has to be done after user is logged in to Bringg platform see #login() for login example.
-     * After user is online active order will be fetched automatically from Bringg cloud services
-     * Bringg SDK will be now monitoring locations, beacons, events, orders, etc.
-     * SDK monitoring will stop after the active order is done or after calling #customerActionsSDK.beOffline
-     * This should be called when the user is starting the journey to the pickup destination.
-     * customerActionsSDK expose active user order live data used to display order UI and perform manual actions (start/arrive/left)
-     */
-    private fun becomeOnline() {
-        customerActionsSDK.beOnline(object : ResultCallback<ConnectResult> {
-            override fun onResult(result: ConnectResult) {
-                when (result) {
-                    ConnectResult.SUCCESS -> showNoActiveOrder()
-                    else -> current_state_text.text = "Error trying to get online, check logs for reason, result=${result.name}"
-                }
-            }
-        })
-    }
-
-    private fun becomeOffline() {
-        customerActionsSDK.beOffline(object : ResultCallback<DisconnectResult> {
-            override fun onResult(result: DisconnectResult) {
-                when (result) {
-                    DisconnectResult.SUCCESS -> showNoActiveOrder()
-                    else -> current_state_text.text = "Error trying to get offline, check logs for reason, result=${result.name}"
-                }
-            }
-        })
+    private fun hasMissingData(token: String, secret: String, region: String): Boolean {
+        var hasError = false
+        if (token.isBlank()) {
+            text_input_token.error = "Token is mandatory"
+            hasError = true
+        } else {
+            text_input_token.error = null
+        }
+        if (secret.isBlank()) {
+            text_input_secret.error = "Secret is mandatory"
+            hasError = true
+        } else {
+            text_input_secret.error = null
+        }
+        if (region.isBlank()) {
+            text_input_region.error = "Region is mandatory"
+            hasError = true
+        } else {
+            text_input_region.error = null
+        }
+        if (hasError)
+            return true
+        return false
     }
 
     /**
@@ -117,15 +150,7 @@ class CustomerActivity : AppCompatActivity() {
      * This call will notify that the user has started his journey to the first destination of this order and after the order
      */
     private fun startOrder(task: Task) {
-        customerActionsSDK.startTask(task.getId(), object : ResultCallback<StartTaskResult> {
-            override fun onResult(result: StartTaskResult) {
-                if (StartTaskResult.SUCCESS == result) {
-                    showOrderStartedUI(task)
-                } else {
-                    current_state_text.text = "Error trying to start order, check logs for reason, result=${result.name}"
-                }
-            }
-        })
+        startOrderById(task.getId())
     }
 
     /**
@@ -154,6 +179,26 @@ class CustomerActivity : AppCompatActivity() {
         }
     }
 
+    // region state observing
+    private fun onLoginStateChanged(loggedIn: Boolean) {
+        if (loggedIn) {
+            onOnlineStateChanged(onlineLiveData.value!!)
+        } else {
+            showLoginUI()
+        }
+    }
+
+    private fun onOnlineStateChanged(online: Boolean) {
+        if (online) {
+            onActiveOrderChanged(activeTaskLiveData.value!!)
+        } else {
+            if (true == loggedInLiveData.value)
+                showLoggedInUI()
+            else
+                showLoginUI()
+        }
+    }
+
     /**
      * Handle order progress state changes from sdkInstance.activeTaskLiveData() observer:
      * This is a simple implementation observing the current active order for current online user
@@ -170,20 +215,15 @@ class CustomerActivity : AppCompatActivity() {
             TaskStates.ARRIVED_AT_CURRENT_DESTINATION -> showArrivedUI(task!!)
             TaskStates.ON_THE_WAY_TO_NEXT_DESTINATION -> showLeftDestinationUI(task!!) // only happens on multiple destination orders
             TaskStates.DONE -> showOrderDoneUI(task!!)
-            TaskStates.ORDER_DATA_UPDATED -> {
-                // data change - refresh the UI to reflect updated data, no state change on this event
-                onOrderStateChangedEvent(task!!)
-                Snackbar.make(button_next_customer_action, "Order #${task.externalId} data was updated", Snackbar.LENGTH_LONG).show()
-            }
             TaskStates.CANCELED -> {
                 showOnlineUI()
-                Snackbar.make(button_next_customer_action, "Order #${task!!.externalId} was canceled", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(view_flipper, "Order #${task!!.externalId} was canceled", Snackbar.LENGTH_LONG).show()
             }
         }
     }
+    // endregion state observing
 
     // region UI changes
-
     private fun onOrderStateChangedEvent(task: Task?) {
         task_state.text = if (task == null) "Waiting for active task..." else "Order Status: ${TaskStatusMap.getUserStatus(task.status).toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
         waypoints_container.removeAllViews()
@@ -191,9 +231,9 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     private fun showNoActiveOrder() {
-        if (!customerActionsSDK.isLoggedIn()) {
+        if (false == loggedInLiveData.value) {
             showLoginUI()
-        } else if (!customerActionsSDK.isOnline()) {
+        } else if (false == onlineLiveData.value) {
             showLoggedInUI()
         } else {
             showOnlineUI()
@@ -201,48 +241,34 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     private fun showLoginUI() {
-        text_flipper.displayedChild = 0
+        view_flipper.displayedChild = 0
         showNoOrderUI()
         current_state_text.text = "Logged out from Bringg"
-        button_next_customer_action.text = "Login to Bringg"
-        button_next_customer_action.isEnabled = true
-        button_next_customer_action.setOnClickListener {
-            current_state_text.text = "Logging in to Bringg..."
-            login()
-        }
     }
 
     private fun showLoggedInUI() {
-        text_flipper.displayedChild = 1
+        view_flipper.displayedChild = 1
         showNoOrderUI()
-        logged_in_text.setText(R.string.logged_in_text)
         current_state_text.text = "Logged in to Bringg"
-        button_next_customer_action.text = "Become Online"
-        button_next_customer_action.isEnabled = true
-        button_next_customer_action.setOnClickListener {
-            current_state_text.text = "Starting SDK services"
-            becomeOnline()
-        }
     }
 
     private fun showOnlineUI() {
-        text_flipper.displayedChild = 1
-        logged_in_text.setText(R.string.create_order_desc)
+        view_flipper.displayedChild = 1
         showNoOrderUI()
-        current_state_text.text = "Online, all monitoring services are on, waiting for active order"
-        current_state.text = "Online, no active order"
-        button_next_customer_action.isEnabled = false
-        button_next_customer_action.text = "waiting for active order..."
-        button_next_customer_action.setOnClickListener(null)
+        if (true == onlineLiveData.value)
+            current_state_text.text = "all monitoring services are on, waiting for active order"
+        else
+            current_state_text.text = "Logged in to Bringg"
+
+        current_state.text = "no active order"
     }
 
     private fun showStartOrderUI(task: Task) {
         showActiveOrderUI()
         current_state_text.text = "Got active order"
         current_state.text = "Online, active order not started"
-        button_next_customer_action.text = "Start Order"
-        button_next_customer_action.isEnabled = true
-        button_next_customer_action.setOnClickListener {
+        button_next_order_action.text = "Start Order"
+        button_next_order_action.setOnClickListener {
             startOrder(task)
         }
     }
@@ -251,9 +277,8 @@ class CustomerActivity : AppCompatActivity() {
         showActiveOrderUI()
         current_state_text.text = "Started active waypoint"
         current_state.text = "Online, active order is started"
-        button_next_customer_action.text = "Arrived Destination"
-        button_next_customer_action.isEnabled = true
-        button_next_customer_action.setOnClickListener {
+        button_next_order_action.text = "Arrived Destination"
+        button_next_order_action.setOnClickListener {
             arrive(task)
         }
     }
@@ -262,9 +287,8 @@ class CustomerActivity : AppCompatActivity() {
         showActiveOrderUI()
         current_state_text.text = "Arrived to destination"
         current_state.text = "Online, arrived at current destination"
-        button_next_customer_action.text = "Order Collected"
-        button_next_customer_action.isEnabled = true
-        button_next_customer_action.setOnClickListener {
+        button_next_order_action.text = "Order Collected"
+        button_next_order_action.setOnClickListener {
             leave(task)
         }
     }
@@ -274,9 +298,7 @@ class CustomerActivity : AppCompatActivity() {
         current_state_text.text = "Left destination, order is done=${task.isDone}"
         current_state.text = "Online, left current destination"
         if (task.isDone || task.currentWayPoint == null) {
-            button_next_customer_action.setOnClickListener(null)
-            button_next_customer_action.isEnabled = false
-            button_next_customer_action.text = "Order Done"
+            showOrderDoneUI(task)
         } else {
             showOrderStartedUI(task)
         }
@@ -284,49 +306,38 @@ class CustomerActivity : AppCompatActivity() {
 
     private fun showOrderDoneUI(task: Task) {
         showActiveOrderUI()
-        text_flipper.visibility = View.VISIBLE
-        text_flipper.displayedChild = 2
+        view_flipper.displayedChild = 1
         current_state_text.text = "Order is done"
         current_state.text = "Online, active order is done"
-        button_next_customer_action.text = "Order Done"
-        button_next_customer_action.isEnabled = false
-        button_next_customer_action.setOnClickListener(null)
-        Snackbar.make(button_next_customer_action, "Order #${task.externalId} is done", Snackbar.LENGTH_LONG).show()
+        Snackbar.make(view_flipper, "Order #${task.externalId} is done", Snackbar.LENGTH_LONG).show()
     }
 
     private fun showActiveOrderUI() {
-        text_flipper.visibility = View.GONE
-        active_order_group.visibility = View.VISIBLE
+        view_flipper.displayedChild = 2
         refreshMenuItemsVisibility()
     }
 
     private fun showNoOrderUI() {
-        text_flipper.visibility = View.VISIBLE
-        active_order_group.visibility = View.GONE
         refreshMenuItemsVisibility()
     }
     // endregion UI changes
 
+    // region options menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         super.onCreateOptionsMenu(menu)
         menuInflater.inflate(R.menu.customer_activity, menu)
-        menuBecomeOffline = menu?.findItem(R.id.menu_item_become_offline)
         menuLogout = menu?.findItem(R.id.menu_item_logout)
-        refreshMenuItemsVisibility()
-        menuBecomeOffline?.setOnMenuItemClickListener {
-            becomeOffline()
-            true
-        }
         menuLogout?.setOnMenuItemClickListener {
             customerActionsSDK.logout()
             showNoActiveOrder()
             true
         }
+        refreshMenuItemsVisibility()
         return true
     }
 
     private fun refreshMenuItemsVisibility() {
-        menuBecomeOffline?.isVisible = customerActionsSDK.isOnline()
-        menuLogout?.isVisible = customerActionsSDK.isLoggedIn()
+        menuLogout?.isVisible = true == loggedInLiveData.value
     }
+    // endregion options menu
 }

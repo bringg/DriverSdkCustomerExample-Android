@@ -2,47 +2,43 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp">
+    android:padding="3dp">
 
-    <TextView
-        android:id="@+id/tv_remaining_quantity"
+    <ImageView
+        android:id="@+id/img_inventory_item"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:layout_marginLeft="4dp"
-        android:textSize="12sp"
-        android:gravity="start"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="0dp"
+        android:scaleType="centerInside"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintWidth_percent="0.1"
-        tools:text="2" />
+        tools:src="@drawable/avatar" />
 
     <TextView
         android:id="@+id/tv_name"
         android:layout_width="0dp"
+        android:layout_marginStart="5dp"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         android:gravity="start"
-        app:layout_constraintStart_toEndOf="@id/tv_remaining_quantity"
+        android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@+id/tv_total_quantity"
+        app:layout_constraintStart_toEndOf="@id/img_inventory_item"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.5"
-        tools:text="Lorem ipsum sit amet dolor estLorem ipsum sit amet dolor est" />
+        tools:text="Lorem ipsum sit amet dolor estLorem ipsum sit amet dolor est djfgnlkds clmsa cljas cljkds cljkds clad skcaklsdj lksd lkasdklc klamsdklcdslk klds lkmc lkd" />
 
     <TextView
         android:id="@+id/tv_total_quantity"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="12dp"
-        android:layout_marginRight="12dp"
         android:gravity="end"
         android:textSize="12sp"
         app:layout_constraintEnd_toStartOf="@id/tv_price"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.3"
+        app:layout_constraintWidth_percent="0.15"
         tools:text="10" />
 
     <TextView
@@ -50,39 +46,41 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:textSize="11sp"
+        android:textSize="10sp"
+        app:layout_constraintEnd_toEndOf="@+id/tv_total_quantity"
         app:layout_constraintStart_toStartOf="@+id/tv_total_quantity"
         app:layout_constraintTop_toBottomOf="@+id/tv_total_quantity"
-        app:layout_constraintWidth_percent="0.3"
         tools:ignore="SmallSp"
-        tools:text="10 rejected" />
+        tools:text="10,000 rejected" />
 
     <TextView
         android:id="@+id/tv_price"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textSize="12sp"
         android:gravity="end"
+        android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintWidth_percent="0.15"
         tools:text="150.18" />
+
+    <androidx.constraintlayout.widget.Barrier
+        android:id="@+id/inventory_item_view_comment_barrier"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:barrierDirection="bottom"
+        app:constraint_referenced_ids="tv_remaining_quantity,img_inventory_item, tv_name, tv_rejected_quantity" />
 
     <TextView
         android:id="@+id/inventory_comment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
-        android:layout_marginLeft="5dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginRight="3dp"
-        android:gravity="start"
         android:textSize="10sp"
-        app:layout_constraintWidth_percent="0.5"
-        app:layout_constraintEnd_toEndOf="@+id/tv_name"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/tv_name"
-        app:layout_constraintTop_toBottomOf="@+id/tv_name"
+        app:layout_constraintTop_toBottomOf="@+id/inventory_item_view_comment_barrier"
         tools:ignore="SmallSp"
-        tools:text="notenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenotenote" />
+        tools:text="Lorem ipsum sit amet dolor estLorem ipsum sit amet dolor est djfgnlkds clmsa cljas cljkds cljkds clad skcaklsdj lksd lkasdklc klamsdklcdslk klds lkmc lkd" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

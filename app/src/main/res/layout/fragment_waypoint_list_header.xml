@@ -6,21 +6,61 @@
     android:orientation="vertical"
     android:padding="3dp">
 
-    <TextView
-        android:id="@+id/waypoint_is_current_label"
+    <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end"
-        android:background="@color/inventory_green_deliver_background"
-        android:paddingStart="5dp"
-        android:paddingTop="2dp"
-        android:paddingEnd="5dp"
-        android:paddingBottom="2dp"
-        android:layout_marginBottom="3dp"
-        android:text="CURRENT DESTINATION"
-        android:textAllCaps="true"
-        android:textColor="@color/white"
-        android:textStyle="bold" />
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/customer_title"
+            layout="@layout/layout_way_point_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/way_point_status_label_text"
+            android:gravity="center"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="Waypoint Status: " />
+
+        <TextView
+            android:id="@+id/way_point_status_label_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="end"
+            android:layout_marginBottom="3dp"
+            android:background="@color/inventory_green_deliver_background"
+            android:paddingStart="5dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="2dp"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            tools:text="STARTED" />
+
+        <TextView
+            android:id="@+id/waypoint_is_current_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/way_point_status_label_text"
+            android:layout_alignParentEnd="true"
+            android:layout_gravity="end"
+            android:layout_marginBottom="3dp"
+            android:background="@color/inventory_green_deliver_background"
+            android:paddingStart="5dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="5dp"
+            android:paddingBottom="2dp"
+            android:text="CURRENT DESTINATION"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/current_way_point_item"
@@ -29,15 +69,24 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/way_point_status_label_text"
+            android:id="@+id/way_point_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:includeFontPadding="false"
+            android:text="@string/order_description"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/way_point_description_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
-            tools:text="STARTED" />
+            android:includeFontPadding="false"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            tools:text="David david" />
 
-        <!-- address -->
         <TextView
-            android:id="@+id/way_point_address"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="3dp"
@@ -46,37 +95,7 @@
             android:focusable="true"
             android:paddingTop="5dp"
             android:singleLine="false"
-            tools:text="some nice address here very very long address here. look how lonl it is" />
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <!-- second line address -->
-            <TextView
-                android:id="@+id/way_point_second_address"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:singleLine="false"
-                tools:text="some second line address" />
-
-            <View
-                android:id="@+id/customer_address_divider"
-                android:layout_width="6dp"
-                android:layout_height="1dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                android:background="@color/black" />
-
-            <TextView
-                android:id="@+id/customer_address_type"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                android:textStyle="normal"
-                tools:text="dsasdfsd" />
-        </LinearLayout>
+            android:text="Destination:" />
 
         <TextView
             android:id="@+id/customer_address_name"
@@ -86,25 +105,37 @@
             android:textStyle="normal"
             tools:text="sdfdsfdfdsfsddfds" />
 
+        <TextView
+            android:id="@+id/way_point_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            tools:text="some nice address here very very long address here. look how lonl it is" />
+
+        <TextView
+            android:id="@+id/way_point_second_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="some second line address" />
+
+        <TextView
+            android:id="@+id/customer_address_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="dsasdfsd" />
+
     </LinearLayout>
 
     <include
         layout="@layout/waypoint_time_window_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
-    <include
-        android:id="@+id/customer_title"
-        layout="@layout/layout_way_point_title" />
-
-    <include
-        android:id="@+id/waypoint_description_layout"
-        layout="@layout/layout_way_point_description" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp" />
 
     <FrameLayout
         android:id="@+id/inventory_list"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="3dp" />
+        android:layout_marginTop="3dp"
+        android:layout_weight="1" />
 </LinearLayout>
