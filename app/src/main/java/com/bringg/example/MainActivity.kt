@@ -9,9 +9,9 @@ import androidx.appcompat.app.AppCompatActivity
 import driver_sdk.ActiveCustomerSDKFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
-import driver_sdk.customer.ConnectResult
-import driver_sdk.customer.DisconnectResult
 import driver_sdk.customer.SdkSettings
+import driver_sdk.models.enums.LoginResult
+import driver_sdk.models.enums.LogoutResult
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -27,7 +27,8 @@ class MainActivity : AppCompatActivity() {
         val builder = SdkSettings.Builder()
 
         // initialize the sdk
-        val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
+        val sdkInstance =
+            ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
         return sdkInstance.getActiveCustomerActions()
     }
 
@@ -40,7 +41,14 @@ class MainActivity : AppCompatActivity() {
         when (view.id) {
             R.id.button_login -> login()
 
-            R.id.button_logout -> customerActions.logout()
+            R.id.button_logout -> customerActions.logout(object : ResultCallback<LogoutResult> {
+                override fun onResult(result: LogoutResult) {
+                    if (result == LogoutResult.SUCCESS)
+                        onActionSuccess("Logged out from Bringg")
+                    else
+                        onActionFailure("Failed to logout (error = $result)")
+                }
+            })
 
             R.id.button_start_task -> {
                 customerActions.startTask(
@@ -62,15 +70,19 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun login() {
-        customerActions.login("e9896364-e545-42c5-80f8-53107b7c3df8", "3ea3d8fe-443a-488f-b024-3adb61f762e6", "us-east-1", object : ResultCallback<Boolean> {
-            override fun onResult(result: Boolean) {
-                // true = successful login, false = login error.
-                if (result)
-                    onActionSuccess("onLoginSuccess()")
-                else
-                    onActionFailure("onLoginFailed() - check the log for failure reason")
-            }
-        })
+        customerActions.login(
+            "e9896364-e545-42c5-80f8-53107b7c3df8",
+            "3ea3d8fe-443a-488f-b024-3adb61f762e6",
+            "us-east-1",
+            object : ResultCallback<LoginResult> {
+                override fun onResult(result: LoginResult) {
+                    // true = successful login, false = login error.
+                    if (result.success())
+                        onActionSuccess("onLoginSuccess()")
+                    else
+                        onActionFailure("onLoginFailed() - check the log for failure reason")
+                }
+            })
     }
 
     private fun onActionSuccess(text: String) {
@@ -88,7 +100,10 @@ class MainActivity : AppCompatActivity() {
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        Log.d(TAG, "onRequestPermissionsResult() called with: requestCode = [$requestCode], permissions = [$permissions], grantResults = [$grantResults]")
+        Log.d(
+            TAG,
+            "onRequestPermissionsResult() called with: requestCode = [$requestCode], permissions = [$permissions], grantResults = [$grantResults]"
+        )
     }
 }
 

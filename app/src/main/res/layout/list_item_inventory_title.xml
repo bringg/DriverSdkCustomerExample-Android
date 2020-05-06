@@ -7,19 +7,6 @@
     android:padding="3dp">
 
     <TextView
-        android:id="@+id/header_image"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="2dp"
-        android:gravity="start"
-        android:textColor="@color/white"
-        android:textSize="12sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.1" />
-
-    <TextView
         android:id="@+id/header_name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -29,7 +16,7 @@
         android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@+id/header_quantity"
-        app:layout_constraintStart_toEndOf="@id/header_image"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView

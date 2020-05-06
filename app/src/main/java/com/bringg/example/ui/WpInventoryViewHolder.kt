@@ -44,7 +44,7 @@ class WpInventoryViewHolder(v: View) : RecyclerView.ViewHolder(v) {
         comment.text = inventory.note
 
         val imageUrl = inventory.image
-        if (TextUtils.isEmpty(imageUrl)) {
+        if (TextUtils.isEmpty(imageUrl) || !imageUrl!!.startsWith("http")) {
             image.setImageDrawable(null)
             image.visibility = View.GONE
         } else {

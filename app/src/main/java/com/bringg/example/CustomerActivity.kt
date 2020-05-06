@@ -1,6 +1,7 @@
 package com.bringg.example
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -16,6 +17,8 @@ import driver_sdk.models.Task
 import driver_sdk.models.TaskActionConstants
 import driver_sdk.models.TaskState
 import driver_sdk.models.TaskStates
+import driver_sdk.models.enums.LoginResult
+import driver_sdk.models.enums.LogoutResult
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.active_order_layout.*
 import kotlinx.android.synthetic.main.activity_customer.*
@@ -24,6 +27,8 @@ import kotlinx.android.synthetic.main.login_layout.*
 import java.util.*
 
 class CustomerActivity : AppCompatActivity() {
+
+    private val TAG = "CustomerActivity"
 
     // sdk instance
     private lateinit var customerActionsSDK: ActiveCustomerActions
@@ -64,7 +69,6 @@ class CustomerActivity : AppCompatActivity() {
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
         activeTaskLiveData.observe(this, Observer { onActiveOrderChanged(it) })
 
-
         button_login.setOnClickListener { login() }
         button_start_task.setOnClickListener {
             val taskId = input_start_task_id.editText?.text.toString().toLongOrNull()
@@ -72,19 +76,8 @@ class CustomerActivity : AppCompatActivity() {
                 input_start_task_id.error = "Not a valid task_id"
                 return@setOnClickListener
             }
-            input_start_task_id.error = null
-
             startOrderById(taskId)
         }
-    }
-
-    private fun startOrderById(taskId: Long) {
-        customerActionsSDK.startTask(taskId, object : ResultCallback<StartTaskResult> {
-            override fun onResult(result: StartTaskResult) {
-                if (StartTaskResult.SUCCESS != result)
-                    current_state_text.text = "Error trying to start order, check logs for reason, result=${result.name}"
-            }
-        })
     }
 
     /**
@@ -109,58 +102,53 @@ class CustomerActivity : AppCompatActivity() {
         if (hasMissingData(token, secret, region)) return
 
         current_state_text.text = "Logging in to Bringg..."
-        customerActionsSDK.login(token, secret, region, object : ResultCallback<Boolean> {
-            override fun onResult(result: Boolean) {
-                // true = successful login, false = login error.
-                if (result)
-                    showNoActiveOrder()
-                else
+        customerActionsSDK.login(token, secret, region, object : ResultCallback<LoginResult> {
+            override fun onResult(result: LoginResult) {
+                Log.i(TAG, "login result=$result, success=${result.success()}")
+                if (!result.success())
                     current_state_text.text = "Login error - login failed, check logs for reason"
             }
         })
     }
 
-    private fun hasMissingData(token: String, secret: String, region: String): Boolean {
-        var hasError = false
-        if (token.isBlank()) {
-            text_input_token.error = "Token is mandatory"
-            hasError = true
-        } else {
-            text_input_token.error = null
-        }
-        if (secret.isBlank()) {
-            text_input_secret.error = "Secret is mandatory"
-            hasError = true
-        } else {
-            text_input_secret.error = null
-        }
-        if (region.isBlank()) {
-            text_input_region.error = "Region is mandatory"
-            hasError = true
-        } else {
-            text_input_region.error = null
-        }
-        if (hasError)
-            return true
-        return false
-    }
-
-    /**
-     * When a new order is created and assigned to the user first step on the order lifecycle is start order
-     * This call will notify that the user has started his journey to the first destination of this order and after the order
-     */
     private fun startOrder(task: Task) {
         startOrderById(task.getId())
     }
 
     /**
+     * Start an order
+     * After a new order is created and assigned to the user first step on the order lifecycle is start order.
+     * This call will notify that the user has started his journey to the first destination of this order.
+     * The SDK will fetch the order data from Bringg platform and start tracking the order progress.
+     * After the order is fetched successfully active task live data events will start being fired with the current order state and data
+     * Once the order is successfully started the order state will be ON_THE_WAY_TO_FIRST_DESTINATION
+     */
+    private fun startOrderById(taskId: Long) {
+        customerActionsSDK.startTask(taskId, object : ResultCallback<StartTaskResult> {
+            override fun onResult(result: StartTaskResult) {
+                Log.i(TAG, "order start result=$result, success=${result.success()}")
+                if (result.success()) {
+                    clearTaskIdEditText()
+                    current_state_text.text = "Started order, result=${result.name}"
+                } else {
+                    input_start_task_id.error = "Error starting order, start result is ${result.name}"
+                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.name}"
+                }
+            }
+        })
+    }
+
+    /**
+     * Arrived to destination
      * After successfully starting the order (see #startOrder) you can manually notify your arrival to the destination
      * When SdkSetting is configured with autoArriveByLocation = true arriving to the destination will be done
-     * automatically by SDK monitoring and tracking services.
+     * automatically by the SDK monitoring and tracking services.
      * Manual action could be used otherwise or as a fallback.
+     * After successfully arriving to a destination active live data event will be fired with ON_THE_WAY_TO_FIRST_DESTINATION state
      */
     private fun arrive(task: Task) {
         val result = customerActionsSDK.arriveToWaypoint()
+        Log.i(TAG, "arrive result=$result, success=${result.success()}")
         if (result.result == TaskActionConstants.ACTION_SUCCESS) {
             showArrivedUI(task)
         } else {
@@ -169,11 +157,18 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     /**
+     * Left current destination:
      * After the user has arrived to the destination, leaving the destination will complete the current journey.
      * Order with a single destination will now be done, orders with multiple destinations will proceed to the next destination.
+     * When SdkSetting is configured with autoLeaveByLocation = true leaving to the destination will be done
+     * automatically by the SDK monitoring and tracking services.
+     * Manual action could be used otherwise or as a fallback.
+     * After successfully leaving a destination active live data event will be fired with ON_THE_WAY_TO_NEXT_DESTINATION state when there are more
+     * destinations for this order or DONE state followed by NO_TASK state
      */
     private fun leave(task: Task) {
         val result = customerActionsSDK.leaveWaypoint()
+        Log.i(TAG, "leave result=$result, success=${result.success()}")
         if (!result.success()) {
             current_state_text.text = "Error trying to leave waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
         }
@@ -207,6 +202,7 @@ class CustomerActivity : AppCompatActivity() {
      */
     private fun onActiveOrderChanged(taskState: TaskState) {
         val task = taskState.task
+        Log.i(TAG, "order updated, state=${taskState.currentState} order=$task")
         onOrderStateChangedEvent(task)
         when (taskState.currentState) {
             TaskStates.NO_TASK -> showNoActiveOrder()
@@ -217,7 +213,11 @@ class CustomerActivity : AppCompatActivity() {
             TaskStates.DONE -> showOrderDoneUI(task!!)
             TaskStates.CANCELED -> {
                 showOnlineUI()
-                Snackbar.make(view_flipper, "Order #${task!!.externalId} was canceled", Snackbar.LENGTH_LONG).show()
+                Snackbar.make(
+                    view_flipper,
+                    "Order #${task!!.externalId} was canceled",
+                    Snackbar.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -225,9 +225,21 @@ class CustomerActivity : AppCompatActivity() {
 
     // region UI changes
     private fun onOrderStateChangedEvent(task: Task?) {
-        task_state.text = if (task == null) "Waiting for active task..." else "Order Status: ${TaskStatusMap.getUserStatus(task.status).toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
+        task_state.text =
+            if (task == null) "Waiting for active task..." else "Order Status: ${TaskStatusMap.getUserStatus(
+                task.status
+            )
+                .toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
         waypoints_container.removeAllViews()
-        task?.wayPoints?.forEach { waypoints_container.addView(WaypointView.newInstance(this, task, it.id)) }
+        task?.wayPoints?.forEach {
+            waypoints_container.addView(
+                WaypointView.newInstance(
+                    this,
+                    task,
+                    it.id
+                )
+            )
+        }
     }
 
     private fun showNoActiveOrder() {
@@ -320,6 +332,36 @@ class CustomerActivity : AppCompatActivity() {
     private fun showNoOrderUI() {
         refreshMenuItemsVisibility()
     }
+
+    private fun clearTaskIdEditText() {
+        input_start_task_id.error = null
+        input_start_task_id.editText?.text = null
+    }
+
+    private fun hasMissingData(token: String, secret: String, region: String): Boolean {
+        var hasError = false
+        if (token.isBlank()) {
+            text_input_token.error = "Token is mandatory"
+            hasError = true
+        } else {
+            text_input_token.error = null
+        }
+        if (secret.isBlank()) {
+            text_input_secret.error = "Secret is mandatory"
+            hasError = true
+        } else {
+            text_input_secret.error = null
+        }
+        if (region.isBlank()) {
+            text_input_region.error = "Region is mandatory"
+            hasError = true
+        } else {
+            text_input_region.error = null
+        }
+        if (hasError)
+            return true
+        return false
+    }
     // endregion UI changes
 
     // region options menu
@@ -328,7 +370,14 @@ class CustomerActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.customer_activity, menu)
         menuLogout = menu?.findItem(R.id.menu_item_logout)
         menuLogout?.setOnMenuItemClickListener {
-            customerActionsSDK.logout()
+            customerActionsSDK.logout(object : ResultCallback<LogoutResult> {
+                override fun onResult(result: LogoutResult) {
+                    Log.i(TAG, "logout result=$result, success=${result.success()}")
+                    if (!result.success()) {
+                        current_state_text.text = "Error trying to logout, check logs for reason, result=${result.name}"
+                    }
+                }
+            })
             showNoActiveOrder()
             true
         }
