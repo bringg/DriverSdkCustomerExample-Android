@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/waypoint_root_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="3dp">
+
+    <TextView
+        android:id="@+id/order_color_and_number"
+        style="@style/TextAppearance.MaterialComponents.Headline3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:visibility="gone"
+        android:gravity="center"/>
 
     <RelativeLayout
         android:layout_width="wrap_content"
@@ -14,7 +24,7 @@
             android:id="@+id/customer_title"
             layout="@layout/layout_way_point_title"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <TextView
             android:layout_width="wrap_content"

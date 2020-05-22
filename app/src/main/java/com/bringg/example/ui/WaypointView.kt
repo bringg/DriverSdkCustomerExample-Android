@@ -1,6 +1,9 @@
 package com.bringg.example.ui
 
 import android.content.Context
+import android.graphics.Color
+import android.text.TextUtils
+import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
@@ -15,21 +18,20 @@ import kotlinx.android.synthetic.main.layout_way_point_title.view.*
 import kotlinx.android.synthetic.main.waypoint_time_window_layout.view.*
 import java.util.*
 
-/**
- * TODO: document your custom view class.
- */
-class WaypointView(context: Context, private val task: Task, waypointId: Long) : CardView(context) {
+class WaypointView : CardView {
     private var inventoryLayout: InventoryPricingLayout
-    private var waypoint = task.getWayPointById(waypointId)
     private var addressText: TextView
     private var secondLineAddress: TextView
     private var customerAddressType: TextView
     private var customerAddressName: TextView
     private var headerView: View
 
+    constructor(ctx: Context) : super(ctx)
+    constructor(ctx: Context, attrs: AttributeSet) : super(ctx, attrs)
+    constructor(ctx: Context, attrs: AttributeSet, defStyleAttr: Int) : super(ctx, attrs, defStyleAttr)
+
     init {
         useCompatPadding = true
-        elevation = 3 * context.resources.displayMetrics.density
         val inflater = LayoutInflater.from(context)
         headerView = inflater.inflate(R.layout.fragment_waypoint_list_header, this)
         addressText = headerView.findViewById(R.id.way_point_address)
@@ -39,7 +41,6 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         inventoryLayout = InventoryPricingLayout(context)
         inventoryLayout.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
         inventory_list.addView(inventoryLayout)
-        refresh()
     }
 
     private fun updateCustomer(waypoint: Waypoint) {
@@ -50,11 +51,12 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
             return
         }
         customer_name.text = customer.getName()
-        val imageUrl = if (customer.imageUrl.isBlank() || !customer.imageUrl.startsWith("http")) "https://pngimage.net/wp-content/uploads/2018/06/happy-client-png-7.png" else customer.imageUrl
+        val imageUrl =
+            if (customer.imageUrl.isBlank() || !customer.imageUrl.startsWith("http")) "https://pngimage.net/wp-content/uploads/2018/06/happy-client-png-7.png" else customer.imageUrl
         Glide.with(this).load(imageUrl).into(customer_image)
     }
 
-    private fun updateTimeWindowDetails() {
+    private fun updateTimeWindowDetails(waypoint: Waypoint) {
         if (waypoint.scheduledAt.isNullOrBlank()) {
             scheduled_for_text.visibility = View.GONE
             scheduled_for_title.visibility = View.GONE
@@ -85,29 +87,46 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         eta_text.text = if (waypoint.eta.isNullOrBlank()) "Start the order to calculate ETA" else waypoint.eta
     }
 
-    private fun refresh() {
-        updateStatus()
-        updateTimeWindowDetails()
-        updateInventoryList()
-        updateAddress()
-        waypoint?.let { updateCustomer(it) }
+    fun refresh(task: Task?, waypoint: Waypoint?) {
+        if (task == null || waypoint == null) {
+            waypoint_root_container.visibility = View.GONE
+        } else {
+            waypoint_root_container.visibility = View.VISIBLE
+            updateUiData(waypoint)
+            updateStatus(task, waypoint)
+            updateTimeWindowDetails(waypoint)
+            updateInventoryList(task, waypoint)
+            updateAddress(waypoint)
+            updateCustomer(waypoint)
+        }
     }
 
-    private fun updateStatus() {
+    private fun updateUiData(waypoint: Waypoint) {
+        val color = waypoint.uiData.color
+        if (TextUtils.isEmpty(color)) {
+            order_color_and_number.visibility = View.GONE
+        } else {
+            order_color_and_number.visibility = View.VISIBLE
+            order_color_and_number.text = waypoint.uiData.number.toString()
+            order_color_and_number.setBackgroundColor(Color.parseColor(color))
+        }
+    }
+
+    private fun updateStatus(task: Task, waypoint: Waypoint) {
         findViewById<TextView>(R.id.way_point_description_text).text = task.title
         way_point_status_label_text.text = "${TaskStatusMap.getUserStatus(waypoint.status).toUpperCase(Locale.US)} (${task.status})"
         waypoint_is_current_label.visibility = if (waypoint.id == task.currentWayPointId) View.VISIBLE else GONE
     }
 
-    private fun updateAddress() {
-        val sb = getFormattedAddressText()
+    private fun updateAddress(waypoint: Waypoint) {
+        val sb = getFormattedAddressText(waypoint)
         addressText.text = sb.toString()
         secondLineAddress.text = waypoint.secondLineAddress
         customerAddressType.text = waypoint.addressType.name.substring(waypoint.addressType.name.lastIndexOf("_") + 1)
         customerAddressName.text = waypoint.locationName
     }
 
-    private fun getFormattedAddressText(): StringBuilder {
+    private fun getFormattedAddressText(waypoint: Waypoint): StringBuilder {
         val sb = StringBuilder()
         appendValue(waypoint.houseNumber, sb)
         appendValue(waypoint.address, sb)
@@ -124,7 +143,7 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
         }
     }
 
-    private fun updateInventoryList() {
+    private fun updateInventoryList(task: Task, waypoint: Waypoint) {
         inventoryLayout.setData(task, waypoint)
         inventoryLayout.setDeliveryFee(task.deliveryPrice)
         inventoryLayout.setTotal(task.totalPrice)
@@ -134,8 +153,8 @@ class WaypointView(context: Context, private val task: Task, waypointId: Long) :
 
     companion object {
         const val TAG = "WayPointFragment"
-        fun newInstance(context: Context, task: Task, way_point_id: Long): WaypointView {
-            return WaypointView(context, task, way_point_id)
+        fun newInstance(context: Context): WaypointView {
+            return WaypointView(context)
         }
     }
 }

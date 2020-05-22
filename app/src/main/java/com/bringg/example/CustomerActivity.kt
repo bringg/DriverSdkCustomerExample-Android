@@ -19,6 +19,8 @@ import driver_sdk.models.TaskState
 import driver_sdk.models.TaskStates
 import driver_sdk.models.enums.LoginResult
 import driver_sdk.models.enums.LogoutResult
+import driver_sdk.tasks.ArriveWaypointResult
+import driver_sdk.tasks.LeaveWaypointResult
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.active_order_layout.*
 import kotlinx.android.synthetic.main.activity_customer.*
@@ -129,10 +131,10 @@ class CustomerActivity : AppCompatActivity() {
                 Log.i(TAG, "order start result=$result, success=${result.success()}")
                 if (result.success()) {
                     clearTaskIdEditText()
-                    current_state_text.text = "Started order, result=${result.name}"
+                    current_state_text.text = "Started order, result=${result.result.name}"
                 } else {
-                    input_start_task_id.error = "Error starting order, start result is ${result.name}"
-                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.name}"
+                    input_start_task_id.error = "Error starting order, start result is ${result.result.name}"
+                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.result.name}"
                 }
             }
         })
@@ -147,13 +149,17 @@ class CustomerActivity : AppCompatActivity() {
      * After successfully arriving to a destination active live data event will be fired with ON_THE_WAY_TO_FIRST_DESTINATION state
      */
     private fun arrive(task: Task) {
-        val result = customerActionsSDK.arriveToWaypoint()
-        Log.i(TAG, "arrive result=$result, success=${result.success()}")
-        if (result.result == TaskActionConstants.ACTION_SUCCESS) {
-            showArrivedUI(task)
-        } else {
-            current_state_text.text = "Error trying to arrive to waypoint ${task.currentWayPointId}, check logs for reason, result=${result.result}"
-        }
+        customerActionsSDK.arriveToWaypoint(object : ResultCallback<ArriveWaypointResult> {
+            override fun onResult(result: ArriveWaypointResult) {
+                Log.i(TAG, "arrive result=$result, success=${result.success()}")
+                if (result.resultCode == TaskActionConstants.ACTION_SUCCESS) {
+                    showArrivedUI(task)
+                } else {
+                    current_state_text.text =
+                        "Error trying to arrive to waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
+                }
+            }
+        })
     }
 
     /**
@@ -167,11 +173,14 @@ class CustomerActivity : AppCompatActivity() {
      * destinations for this order or DONE state followed by NO_TASK state
      */
     private fun leave(task: Task) {
-        val result = customerActionsSDK.leaveWaypoint()
-        Log.i(TAG, "leave result=$result, success=${result.success()}")
-        if (!result.success()) {
-            current_state_text.text = "Error trying to leave waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
-        }
+        customerActionsSDK.leaveWaypoint(object : ResultCallback<LeaveWaypointResult> {
+            override fun onResult(result: LeaveWaypointResult) {
+                Log.i(TAG, "leave result=$result, success=${result.success()}")
+                if (!result.success()) {
+                    current_state_text.text = "Error trying to leave waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
+                }
+            }
+        })
     }
 
     // region state observing
@@ -228,17 +237,13 @@ class CustomerActivity : AppCompatActivity() {
         task_state.text =
             if (task == null) "Waiting for active task..." else "Order Status: ${TaskStatusMap.getUserStatus(
                 task.status
-            )
-                .toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
+            ).toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
+
         waypoints_container.removeAllViews()
-        task?.wayPoints?.forEach {
-            waypoints_container.addView(
-                WaypointView.newInstance(
-                    this,
-                    task,
-                    it.id
-                )
-            )
+        task?.wayPoints?.forEach { waypoint ->
+            val waypointView = WaypointView.newInstance(this)
+            waypointView.refresh(task, waypoint)
+            waypoints_container.addView(waypointView)
         }
     }
 

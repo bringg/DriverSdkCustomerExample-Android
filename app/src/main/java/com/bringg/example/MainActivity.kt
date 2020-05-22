@@ -12,6 +12,8 @@ import driver_sdk.customer.ActiveCustomerActions
 import driver_sdk.customer.SdkSettings
 import driver_sdk.models.enums.LoginResult
 import driver_sdk.models.enums.LogoutResult
+import driver_sdk.tasks.ArriveWaypointResult
+import driver_sdk.tasks.LeaveWaypointResult
 import driver_sdk.tasks.start.StartTaskResult
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -55,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                     taskIdEditText.number(),
                     object : ResultCallback<StartTaskResult> {
                         override fun onResult(result: StartTaskResult) {
-                            if (result == StartTaskResult.SUCCESS)
+                            if (result.success())
                                 onActionSuccess("Task $taskId started")
                             else
                                 onActionFailure("Task $taskId failed to start (error = $result)")
@@ -63,9 +65,23 @@ class MainActivity : AppCompatActivity() {
                     })
             }
 
-            R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint()
+            R.id.button_waypoint_arrive -> customerActions.arriveToWaypoint(object : ResultCallback<ArriveWaypointResult> {
+                override fun onResult(result: ArriveWaypointResult) {
+                    if (result.success())
+                        onActionSuccess("Task $taskId arrived")
+                    else
+                        onActionFailure("Task $taskId failed to arrive (error = $result)")
+                }
+            })
 
-            R.id.button_waypoint_leave -> customerActions.leaveWaypoint()
+            R.id.button_waypoint_leave -> customerActions.leaveWaypoint(object : ResultCallback<LeaveWaypointResult> {
+                override fun onResult(result: LeaveWaypointResult) {
+                    if (result.success())
+                        onActionSuccess("Task $taskId left")
+                    else
+                        onActionFailure("Task $taskId failed to leave (error = $result)")
+                }
+            })
         }
     }
 

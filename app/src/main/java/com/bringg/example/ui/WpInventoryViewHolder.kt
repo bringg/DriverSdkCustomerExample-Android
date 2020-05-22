@@ -10,11 +10,11 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bringg.example.R
 import com.bumptech.glide.Glide
-import driver_sdk.models.InventoryItem
+import driver_sdk.models.Inventory
 
 class WpInventoryViewHolder(v: View) : RecyclerView.ViewHolder(v) {
 
-    fun bind(inventory: InventoryItem, taskTitle: String?) {
+    fun bind(inventory: Inventory, taskTitle: String?) {
         val image: ImageView = itemView.findViewById(R.id.img_inventory_item)
         val name: TextView = itemView.findViewById(R.id.tv_name)
         val totalQuantity: TextView = itemView.findViewById(R.id.tv_total_quantity)

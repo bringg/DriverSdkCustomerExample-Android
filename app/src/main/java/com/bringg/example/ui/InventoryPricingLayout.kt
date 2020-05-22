@@ -4,7 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.bringg.example.R
-import driver_sdk.models.InventoryItem
+import driver_sdk.models.Inventory
 import driver_sdk.models.Task
 import driver_sdk.models.Waypoint
 import driver_sdk.models.enums.PaymentMethod
@@ -17,7 +17,7 @@ class InventoryPricingLayout : ConstraintLayout {
     private var fallbackTitle: String? = null
     private val pricingFormat = "%.2f"
 
-    var inventoryItems: List<InventoryItem> = emptyList()
+    var inventoryItems: List<Inventory> = emptyList()
 
     constructor(context: Context) : super(context) {
         init(context)
