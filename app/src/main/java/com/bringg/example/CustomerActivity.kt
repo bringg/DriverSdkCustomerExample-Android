@@ -7,9 +7,10 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import com.bringg.example.debug.LocalEnvironmentSetter
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
-import driver_sdk.ActiveCustomerSDKFactory
+import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
 import driver_sdk.customer.SdkSettings
@@ -43,6 +44,9 @@ class CustomerActivity : AppCompatActivity() {
     // option menu items
     private var menuLogout: MenuItem? = null
 
+    // debug
+    private lateinit var localEnvironmentSetter: LocalEnvironmentSetter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer)
@@ -56,8 +60,9 @@ class CustomerActivity : AppCompatActivity() {
             .autoLeaveByLocation(SdkSettings.FeatureMode.ENABLED)
 
         // initialize the sdk
-        val sdkInstance = ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
+        val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
         customerActionsSDK = sdkInstance.getActiveCustomerActions()
+        localEnvironmentSetter = LocalEnvironmentSetter().apply { setServerEnvironmentFromIntent(intent) }
 
         // take reference to state live data objects:
         loggedInLiveData = sdkInstance.isLoggedIn()
@@ -99,7 +104,7 @@ class CustomerActivity : AppCompatActivity() {
     private fun login() {
         val token = text_input_token.editText?.text.toString()
         val secret = text_input_secret.editText?.text.toString()
-        val region = text_input_region.editText?.text.toString()
+        val region = if (localEnvironmentSetter.isLocalEnvironment) "local" else text_input_region.editText?.text.toString()
 
         if (hasMissingData(token, secret, region)) return
 
