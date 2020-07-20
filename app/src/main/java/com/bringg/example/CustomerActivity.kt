@@ -136,10 +136,10 @@ class CustomerActivity : AppCompatActivity() {
                 Log.i(TAG, "order start result=$result, success=${result.success()}")
                 if (result.success()) {
                     clearTaskIdEditText()
-                    current_state_text.text = "Started order, result=${result.result.name}"
+                    current_state_text.text = "Started order, result=${result.result.name()}"
                 } else {
-                    input_start_task_id.error = "Error starting order, start result is ${result.result.name}"
-                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.result.name}"
+                    input_start_task_id.error = "Error starting order, start result is ${result.result.name()}"
+                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.result.name()}"
                 }
             }
         })
@@ -384,7 +384,7 @@ class CustomerActivity : AppCompatActivity() {
                 override fun onResult(result: LogoutResult) {
                     Log.i(TAG, "logout result=$result, success=${result.success()}")
                     if (!result.success()) {
-                        current_state_text.text = "Error trying to logout, check logs for reason, result=${result.name}"
+                        current_state_text.text = "Error trying to logout, check logs for reason, result=${result.name()}"
                     }
                 }
             })

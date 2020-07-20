@@ -31,7 +31,7 @@ class LocalEnvironmentSetter {
         Log.d(TAG, "setServerEnvironment() called with: url=$url, realtime=$realtime")
         isLocalEnvironment = true
         sharedPreferencesWrapper.edit().putString(KEY_MANUAL_SERVER, url).apply()
-        selectedServerConfig = ServerConfig(ServerConfig.NAME_LOCAL, validateLocalApiUrl(url), validateLocalRealTimeUrl(realtime))
+        setSelectedServerConfig(ServerConfig(ServerConfig.NAME_LOCAL, validateLocalApiUrl(url), validateLocalRealTimeUrl(realtime)))
         environment = ConfigurationApiManager.ENVIRONMENT_LOCAL
         region = DynamicRegion.LOCAL_REGION
     }
