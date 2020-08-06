@@ -122,7 +122,7 @@ class WaypointView : CardView {
         val sb = getFormattedAddressText(waypoint)
         addressText.text = sb.toString()
         secondLineAddress.text = waypoint.secondLineAddress
-        customerAddressType.text = waypoint.addressType.name.substring(waypoint.addressType.name.lastIndexOf("_") + 1)
+        customerAddressType.text = waypoint.addressType.name().substring(waypoint.addressType.name().lastIndexOf("_") + 1)
         customerAddressName.text = waypoint.locationName
     }
 
