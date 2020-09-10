@@ -54,7 +54,7 @@ class InventoryPricingLayout : ConstraintLayout {
     }
 
     fun setAmountPaid(paidAmount: Double, paymentMethod: PaymentMethod) {
-        tv_amount_paid_label.text = "Amount paid (${paymentMethod.name})"
+        tv_amount_paid_label.text = "Amount paid (${paymentMethod.name()})"
         tv_amount_paid_value.text = pricingFormat.format(paidAmount)
     }
 }

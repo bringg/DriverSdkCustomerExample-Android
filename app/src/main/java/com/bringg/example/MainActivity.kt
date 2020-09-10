@@ -6,7 +6,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import driver_sdk.ActiveCustomerSDKFactory
+import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
 import driver_sdk.customer.SdkSettings
@@ -29,8 +29,7 @@ class MainActivity : AppCompatActivity() {
         val builder = SdkSettings.Builder()
 
         // initialize the sdk
-        val sdkInstance =
-            ActiveCustomerSDKFactory.init(this, ExampleNotificationProvider(this), builder.build())
+        val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
         return sdkInstance.getActiveCustomerActions()
     }
 
