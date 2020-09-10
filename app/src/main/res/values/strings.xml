@@ -22,7 +22,8 @@
     <string name="order_description">"Order Description"</string>
     <string name="eta_title">"ETA"</string>
     <string name="inventory_pricing_amount_paid">"Amount paid"</string>
-    <string name="create_order_desc">"To Begin:\nCreate order with \"task_type_id\": 6 on Bringg see https://developers.bringg.com/reference#create-task\nWhen creating order for an existing customer add Brinng \"customer_id\" to the request payload."</string>
+    <string name="create_order_desc">"To Begin:\nCreate order with \"task_type_id\": 6 on Bringg see
+        https://developers.bringg.com/reference#create-task\nWhen creating order for an existing customer add Bringg \"customer_id\" to the request payload."</string>
     <string name="login_description">\n\nBefore all other SDK calls user has to Log in to Bringg platform:\nLogin tokens should be generated using the \"user_id\" parameter found on the create order response payload, see https://developers.bringg.com/reference#generate-customer-one-time-code\n\nUse tokens from response payload to login:</string>
     <string name="become_offline">Become Offline</string>
     <string name="become_online">Become Online</string>

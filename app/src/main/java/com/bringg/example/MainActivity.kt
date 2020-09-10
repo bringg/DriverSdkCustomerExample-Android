@@ -29,8 +29,7 @@ class MainActivity : AppCompatActivity() {
         val builder = SdkSettings.Builder()
 
         // initialize the sdk
-        val sdkInstance =
-            ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
+        val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
         return sdkInstance.getActiveCustomerActions()
     }
 
