@@ -13,6 +13,7 @@ import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
 import driver_sdk.customer.SdkSettings
+import driver_sdk.logging.BringgLog
 import driver_sdk.models.Task
 import driver_sdk.models.TaskActionConstants
 import driver_sdk.models.TaskState
@@ -49,6 +50,8 @@ class CustomerActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         PermissionVerifier.requestLocationPermissions(this)
+
+        if (BuildConfig.DEBUG) BringgLog.enableLogcatLog()
 
         // configure your sdk implementation
         val builder = SdkSettings.Builder()
