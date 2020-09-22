@@ -18,8 +18,6 @@ class LocalEnvironmentSetter {
         sdkClient = field.get(null) as BringgSDKClient
     }
 
-    var isLocalEnvironment = false
-
     fun setServerEnvironmentFromIntent(intent: Intent) {
         val url = intent.extras?.getString("url")
         val realtime = intent.extras?.getString("realtime")
@@ -29,7 +27,6 @@ class LocalEnvironmentSetter {
 
     private fun setServerEnvironment(url: String, realtime: String) = with(sdkClient) {
         Log.d(TAG, "setServerEnvironment() called with: url=$url, realtime=$realtime")
-        isLocalEnvironment = true
         sharedPreferencesWrapper.edit().putString(KEY_MANUAL_SERVER, url).apply()
         setSelectedServerConfig(ServerConfig(ServerConfig.NAME_LOCAL, validateLocalApiUrl(url), validateLocalRealTimeUrl(realtime)))
         environment = ConfigurationApiManager.ENVIRONMENT_LOCAL

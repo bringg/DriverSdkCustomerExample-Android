@@ -6,7 +6,6 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import com.bringg.example.debug.LocalEnvironmentSetter
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
@@ -45,9 +44,6 @@ class CustomerActivity : AppCompatActivity() {
     // option menu items
     private var menuLogout: MenuItem? = null
 
-    // debug
-    private lateinit var localEnvironmentSetter: LocalEnvironmentSetter
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_customer)
@@ -65,7 +61,6 @@ class CustomerActivity : AppCompatActivity() {
         // initialize the sdk
         val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
         customerActionsSDK = sdkInstance.getActiveCustomerActions()
-        localEnvironmentSetter = LocalEnvironmentSetter().apply { setServerEnvironmentFromIntent(intent) }
 
         // take reference to state live data objects:
         loggedInLiveData = sdkInstance.isLoggedIn()
@@ -73,11 +68,11 @@ class CustomerActivity : AppCompatActivity() {
         activeTaskLiveData = sdkInstance.activeTask()
 
         // observe login state
-        loggedInLiveData.observe(this, Observer { isLoggedIn -> onLoginStateChanged(isLoggedIn) })
+        loggedInLiveData.observe(this, { isLoggedIn -> onLoginStateChanged(isLoggedIn) })
         // observe online state
-        onlineLiveData.observe(this, Observer { isOnline -> onOnlineStateChanged(isOnline) })
+        onlineLiveData.observe(this, { isOnline -> onOnlineStateChanged(isOnline) })
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
-        activeTaskLiveData.observe(this, Observer { onActiveOrderChanged(it) })
+        activeTaskLiveData.observe(this, { onActiveOrderChanged(it) })
 
         button_login.setOnClickListener { login() }
         button_start_task.setOnClickListener {
@@ -88,6 +83,9 @@ class CustomerActivity : AppCompatActivity() {
             }
             startOrderById(taskId)
         }
+
+        if (BuildConfig.IS_AUTOMATION)
+            LocalEnvironmentSetter().setServerEnvironmentFromIntent(intent)
     }
 
     /**
@@ -107,9 +105,11 @@ class CustomerActivity : AppCompatActivity() {
     private fun login() {
         val token = text_input_token.editText?.text.toString()
         val secret = text_input_secret.editText?.text.toString()
-        val region = if (localEnvironmentSetter.isLocalEnvironment) "local" else text_input_region.editText?.text.toString()
+        var region = text_input_region.editText?.text.toString()
 
         if (hasMissingData(token, secret, region)) return
+
+        if (BuildConfig.IS_AUTOMATION) region = "local"
 
         current_state_text.text = "Logging in to Bringg..."
         customerActionsSDK.login(token, secret, region, object : ResultCallback<LoginResult> {
