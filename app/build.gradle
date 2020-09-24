@@ -26,10 +26,30 @@ android {
         }
     }
 
+    flavorDimensions 'default'
+    productFlavors {
+        example {
+            dimension 'default'
+            buildConfigField 'boolean', 'IS_AUTOMATION', 'false'
+        }
+        automation {
+            dimension 'default'
+            buildConfigField 'boolean', 'IS_AUTOMATION', 'true'
+        }
+
+    }
+
     kotlinOptions {
         jvmTarget = "1.8"
     }
 
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            if (variant.getFlavorName() == "automation") {
+                outputFileName = "customer-example.apk"
+            }
+        }
+    }
 }
 
 dependencies {
