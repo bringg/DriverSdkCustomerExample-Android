@@ -110,6 +110,14 @@ class WaypointView : CardView {
             order_color_and_number.text = waypoint.uiData.number.toString()
             order_color_and_number.setBackgroundColor(Color.parseColor(color))
         }
+
+        val vehicle = waypoint.uiData.vehicle
+        if (vehicle == null) {
+            order_vehicle.visibility = View.GONE
+        } else {
+            order_vehicle.visibility = View.VISIBLE
+            order_vehicle.text = vehicle.toString()
+        }
     }
 
     private fun updateStatus(task: Task, waypoint: Waypoint) {

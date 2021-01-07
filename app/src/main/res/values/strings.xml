@@ -27,4 +27,14 @@
     <string name="login_description">\n\nBefore all other SDK calls user has to Log in to Bringg platform:\nLogin tokens should be generated using the \"user_id\" parameter found on the create order response payload, see https://developers.bringg.com/reference#generate-customer-one-time-code\n\nUse tokens from response payload to login:</string>
     <string name="become_offline">Become Offline</string>
     <string name="become_online">Become Online</string>
+    <string name="skip">Skip</string>
+
+    <!-- vehicle -->
+    <string name="vehicle_details_title">Vehicle Details</string>
+    <string name="vehicle_id">Vehicle Id</string>
+    <string name="vehicle_license_plate">License Plate</string>
+    <string name="vehicle_model">Vehicle Model</string>
+    <string name="vehicle_color">Vehicle Color</string>
+    <string name="vehicle_parking_spot">Parking Area / Spot Number</string>
+    <string name="vehicle_save">Save Vehicle</string>
 </resources>

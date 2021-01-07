@@ -7,15 +7,16 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import com.bringg.example.debug.LocalEnvironmentSetter
+import com.bringg.example.ui.VehicleDetailsFragment
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
 import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
 import driver_sdk.customer.ActiveCustomerActions
+import driver_sdk.customer.CustomerVehicle
 import driver_sdk.customer.SdkSettings
 import driver_sdk.logging.BringgLog
 import driver_sdk.models.Task
-import driver_sdk.models.TaskActionConstants
 import driver_sdk.models.TaskState
 import driver_sdk.models.TaskStates
 import driver_sdk.models.enums.LoginResult
@@ -148,6 +149,12 @@ class CustomerActivity : AppCompatActivity() {
         })
     }
 
+    private fun showVehicleDetailsView(task: Task) {
+        val dialog = VehicleDetailsFragment()
+        dialog.onResult = { vehicle -> arrive(task, vehicle) }
+        dialog.show(supportFragmentManager, VehicleDetailsFragment.TAG)
+    }
+
     /**
      * Arrived to destination
      * After successfully starting the order (see #startOrder) you can manually notify your arrival to the destination
@@ -156,18 +163,31 @@ class CustomerActivity : AppCompatActivity() {
      * Manual action could be used otherwise or as a fallback.
      * After successfully arriving to a destination active live data event will be fired with ON_THE_WAY_TO_FIRST_DESTINATION state
      */
-    private fun arrive(task: Task) {
-        customerActionsSDK.arriveToWaypoint(object : ResultCallback<ArriveWaypointResult> {
-            override fun onResult(result: ArriveWaypointResult) {
-                Log.i(TAG, "arrive result=$result, success=${result.success()}")
-                if (result.resultCode == TaskActionConstants.ACTION_SUCCESS) {
-                    showArrivedUI(task)
-                } else {
-                    current_state_text.text =
-                        "Error trying to arrive to waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
+    private fun arrive(task: Task, vehicle: CustomerVehicle? = null) {
+        Log.d(TAG, "arrive() called with: task = [${task.getId()}], vehicle = [$vehicle]")
+        if (vehicle == null) {
+            customerActionsSDK.arriveToWaypoint(object : ResultCallback<ArriveWaypointResult> {
+                override fun onResult(result: ArriveWaypointResult) {
+                    onArriveToWaypointResult(task, result)
                 }
-            }
-        })
+            })
+        } else {
+            customerActionsSDK.arriveToWaypoint(vehicle, object : ResultCallback<ArriveWaypointResult> {
+                override fun onResult(result: ArriveWaypointResult) {
+                    onArriveToWaypointResult(task, result)
+                }
+            })
+        }
+    }
+
+    private fun onArriveToWaypointResult(task: Task, result: ArriveWaypointResult) {
+        Log.i(TAG, "arrive result=$result, success=${result.success()}")
+        if (result.success()) {
+            showArrivedUI(task)
+        } else {
+            current_state_text.text =
+                "Error trying to arrive to waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
+        }
     }
 
     /**
@@ -304,7 +324,7 @@ class CustomerActivity : AppCompatActivity() {
         current_state.text = "Online, active order is started"
         button_next_order_action.text = "Arrived Destination"
         button_next_order_action.setOnClickListener {
-            arrive(task)
+            showVehicleDetailsView(task)
         }
     }
 
