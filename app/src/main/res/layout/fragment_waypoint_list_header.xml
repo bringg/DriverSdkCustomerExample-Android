@@ -16,6 +16,16 @@
         android:visibility="gone"
         android:gravity="center"/>
 
+    <TextView
+        android:id="@+id/order_vehicle"
+        style="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="30dp"
+        android:gravity="center"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
