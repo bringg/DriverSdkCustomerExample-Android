@@ -1,14 +1,21 @@
 package com.bringg.example
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import com.bringg.example.debug.LocalEnvironmentSetter
+import com.bringg.example.ui.MapDialogFragment
 import com.bringg.example.ui.VehicleDetailsFragment
 import com.bringg.example.ui.WaypointView
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
@@ -30,7 +37,7 @@ import kotlinx.android.synthetic.main.logged_in_layout.*
 import kotlinx.android.synthetic.main.login_layout.*
 import java.util.*
 
-class CustomerActivity : AppCompatActivity() {
+class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionCallback{
 
     private val TAG = "CustomerActivity"
 
@@ -41,6 +48,9 @@ class CustomerActivity : AppCompatActivity() {
     private lateinit var loggedInLiveData: LiveData<Boolean>
     private lateinit var onlineLiveData: LiveData<Boolean>
     private lateinit var activeTaskLiveData: LiveData<TaskState>
+
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+    private var mLastLocation: Location? = null
 
     // option menu items
     private var menuLogout: MenuItem? = null
@@ -58,6 +68,8 @@ class CustomerActivity : AppCompatActivity() {
         val builder = SdkSettings.Builder()
             .autoArriveByLocation(SdkSettings.FeatureMode.ENABLED)
             .autoLeaveByLocation(SdkSettings.FeatureMode.ENABLED)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // initialize the sdk
         val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
@@ -211,6 +223,10 @@ class CustomerActivity : AppCompatActivity() {
         })
     }
 
+    private fun openMapsView(taskId: Long) {
+        MapDialogFragment.newInstance(taskId).show(supportFragmentManager, "map_fragment")
+    }
+
     // region state observing
     private fun onLoginStateChanged(loggedIn: Boolean) {
         if (loggedIn) {
@@ -326,6 +342,7 @@ class CustomerActivity : AppCompatActivity() {
         button_next_order_action.setOnClickListener {
             showVehicleDetailsView(task)
         }
+        button_open_map.setOnClickListener { openMapsView(task.getId()) }
     }
 
     private fun showArrivedUI(task: Task) {
@@ -336,6 +353,7 @@ class CustomerActivity : AppCompatActivity() {
         button_next_order_action.setOnClickListener {
             leave(task)
         }
+        button_open_map.setOnClickListener { openMapsView(task.getId()) }
     }
 
     private fun showLeftDestinationUI(task: Task) {
@@ -422,4 +440,28 @@ class CustomerActivity : AppCompatActivity() {
         menuLogout?.isVisible = true == loggedInLiveData.value
     }
     // endregion options menu
+
+
+
+    override fun getActiveTask(taskId: Long): Task? {
+        return activeTaskLiveData.value?.task
+    }
+
+    override fun getCurrentLocation(): Location? {
+
+        // async request a single location update
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            BringgLog.error(TAG, "can't get last location, ACCESS_COARSE_LOCATION permission not granted, returning null location")
+            return null
+        }
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener { location: Location? ->
+                mLastLocation =location
+            }
+        return mLastLocation
+    }
 }
