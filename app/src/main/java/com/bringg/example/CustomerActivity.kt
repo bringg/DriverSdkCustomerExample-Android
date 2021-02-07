@@ -69,8 +69,6 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
             .autoArriveByLocation(SdkSettings.FeatureMode.ENABLED)
             .autoLeaveByLocation(SdkSettings.FeatureMode.ENABLED)
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         // initialize the sdk
         val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
         customerActionsSDK = sdkInstance.getActiveCustomerActions()
@@ -86,6 +84,8 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         onlineLiveData.observe(this, { isOnline -> onOnlineStateChanged(isOnline) })
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
         activeTaskLiveData.observe(this, { onActiveOrderChanged(it) })
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         button_login.setOnClickListener { login() }
         button_start_task.setOnClickListener {
@@ -442,13 +442,12 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
     // endregion options menu
 
 
-
+    // Implement MapInteractionCallback
     override fun getActiveTask(taskId: Long): Task? {
         return activeTaskLiveData.value?.task
     }
 
     override fun getCurrentLocation(): Location? {
-
         // async request a single location update
         if (ActivityCompat.checkSelfPermission(
                 this,

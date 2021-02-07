@@ -24,7 +24,6 @@ class MapDialogFragment : DialogFragment() {
     private var task: Task? = null
 
     override fun onCreateView(
-
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
@@ -46,7 +45,6 @@ class MapDialogFragment : DialogFragment() {
         contextImplementsInterface(p0)
     }
 
-    @Throws(Exception::class)
     override fun onAttach(context: Context) {
         super.onAttach(context)
         contextImplementsInterface(context)
@@ -80,7 +78,6 @@ class MapDialogFragment : DialogFragment() {
         googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), 100))
     }
 
-
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -100,7 +97,6 @@ class MapDialogFragment : DialogFragment() {
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance(taskId: Long) =
             MapDialogFragment().apply {
