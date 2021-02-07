@@ -50,7 +50,7 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
     private lateinit var activeTaskLiveData: LiveData<TaskState>
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var mLastLocation: Location? = null
+    private var lastLocation: Location? = null
 
     // option menu items
     private var menuLogout: MenuItem? = null
@@ -460,8 +460,8 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         }
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location: Location? ->
-                mLastLocation =location
+                lastLocation =location
             }
-        return mLastLocation
+        return lastLocation
     }
 }
