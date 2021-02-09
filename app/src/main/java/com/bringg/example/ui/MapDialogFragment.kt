@@ -24,6 +24,7 @@ import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.customer.SdkSettings
 import driver_sdk.logging.BringgLog
 import driver_sdk.models.TaskState
+import driver_sdk.models.tasks.Waypoint
 
 
 class MapDialogFragment : DialogFragment() {
@@ -69,13 +70,16 @@ class MapDialogFragment : DialogFragment() {
     }
 
     private fun addMarkersForWps() {
-        for (waypoint in activeTaskLiveData.value?.task?.wayPoints!!) {
-            val markerOption = MarkerOptions().position(LatLng(waypoint.lat, waypoint.lng)).title("Wp id: " + waypoint.id)
-            markers.add(markerOption)
+        val waypoints = activeTaskLiveData.value?.task?.wayPoints
+        if (waypoints != null) {
+            for (wp in waypoints) {
+                val markerOption = MarkerOptions().position(LatLng(waypoint.lat, waypoint.lng)).title("Wp id: " + waypoint.id)
+                markers.add(markerOption)
+            }
         }
     }
 
-    private fun displayMarkersOnMap( googleMap: GoogleMap) {
+    private fun displayMarkersOnMap(googleMap: GoogleMap) {
         addMarkersForWps()
         val builder = LatLngBounds.Builder()
         for (marker in markers) {
