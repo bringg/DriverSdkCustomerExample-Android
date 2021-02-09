@@ -1,21 +1,15 @@
 package com.bringg.example
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
 import androidx.lifecycle.LiveData
 import com.bringg.example.debug.LocalEnvironmentSetter
 import com.bringg.example.ui.MapDialogFragment
 import com.bringg.example.ui.VehicleDetailsFragment
 import com.bringg.example.ui.WaypointView
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.google.android.material.snackbar.Snackbar
 import driver_sdk.ActiveCustomerSdkFactory
 import driver_sdk.content.ResultCallback
@@ -37,7 +31,7 @@ import kotlinx.android.synthetic.main.logged_in_layout.*
 import kotlinx.android.synthetic.main.login_layout.*
 import java.util.*
 
-class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionCallback{
+class CustomerActivity : AppCompatActivity() {
 
     private val TAG = "CustomerActivity"
 
@@ -48,9 +42,6 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
     private lateinit var loggedInLiveData: LiveData<Boolean>
     private lateinit var onlineLiveData: LiveData<Boolean>
     private lateinit var activeTaskLiveData: LiveData<TaskState>
-
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private var lastLocation: Location? = null
 
     // option menu items
     private var menuLogout: MenuItem? = null
@@ -85,8 +76,6 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
         activeTaskLiveData.observe(this, { onActiveOrderChanged(it) })
 
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         button_login.setOnClickListener { login() }
         button_start_task.setOnClickListener {
             val taskId = input_start_task_id.editText?.text.toString().toLongOrNull()
@@ -96,6 +85,7 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
             }
             startOrderById(taskId)
         }
+        button_open_map.setOnClickListener { openMapsView() }
 
         if (BuildConfig.IS_AUTOMATION)
             LocalEnvironmentSetter().setServerEnvironmentFromIntent(intent)
@@ -223,8 +213,8 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         })
     }
 
-    private fun openMapsView(taskId: Long) {
-        MapDialogFragment.newInstance(taskId).show(supportFragmentManager, "map_fragment")
+    private fun openMapsView() {
+        MapDialogFragment().show(supportFragmentManager, "map_fragment")
     }
 
     // region state observing
@@ -342,7 +332,6 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         button_next_order_action.setOnClickListener {
             showVehicleDetailsView(task)
         }
-        button_open_map.setOnClickListener { openMapsView(task.getId()) }
     }
 
     private fun showArrivedUI(task: Task) {
@@ -353,7 +342,6 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         button_next_order_action.setOnClickListener {
             leave(task)
         }
-        button_open_map.setOnClickListener { openMapsView(task.getId()) }
     }
 
     private fun showLeftDestinationUI(task: Task) {
@@ -440,27 +428,4 @@ class CustomerActivity : AppCompatActivity() , MapDialogFragment.MapInteractionC
         menuLogout?.isVisible = true == loggedInLiveData.value
     }
     // endregion options menu
-
-
-    // Implement MapInteractionCallback
-    override fun getActiveTask(taskId: Long): Task? {
-        return activeTaskLiveData.value?.task
-    }
-
-    override fun getCurrentLocation(): Location? {
-        // async request a single location update
-        if (ActivityCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            BringgLog.error(TAG, "can't get last location, ACCESS_COARSE_LOCATION permission not granted, returning null location")
-            return null
-        }
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener { location: Location? ->
-                lastLocation =location
-            }
-        return lastLocation
-    }
 }
