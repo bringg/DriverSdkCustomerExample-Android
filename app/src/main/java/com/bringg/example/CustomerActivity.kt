@@ -7,6 +7,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import com.bringg.example.debug.LocalEnvironmentSetter
+import com.bringg.example.ui.MapDialogFragment
 import com.bringg.example.ui.VehicleDetailsFragment
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
@@ -84,6 +85,7 @@ class CustomerActivity : AppCompatActivity() {
             }
             startOrderById(taskId)
         }
+        button_open_map.setOnClickListener { openMapsView() }
 
         if (BuildConfig.IS_AUTOMATION)
             LocalEnvironmentSetter().setServerEnvironmentFromIntent(intent)
@@ -209,6 +211,10 @@ class CustomerActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    private fun openMapsView() {
+        MapDialogFragment().show(supportFragmentManager, "map_fragment")
     }
 
     // region state observing
