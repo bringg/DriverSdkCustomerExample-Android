@@ -23,8 +23,8 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
+        android:paddingStart="5dp"
+        android:paddingEnd="5dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
         <TextView
@@ -40,7 +40,6 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Waiting for active task..." />
 
-
         <ViewFlipper
             android:id="@+id/view_flipper"
             android:layout_width="match_parent"
@@ -53,21 +52,33 @@
             app:layout_constraintTop_toBottomOf="@+id/current_state_text">
 
             <include
+                android:id="@+id/login_layout"
                 layout="@layout/login_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <include
+                android:id="@+id/logged_in_layout"
                 layout="@layout/logged_in_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
             <include
+                android:id="@+id/order_layout"
                 layout="@layout/active_order_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 
         </ViewFlipper>
+
+        <FrameLayout
+            android:id="@+id/activity_root_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/current_state_text" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

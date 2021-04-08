@@ -2,12 +2,14 @@ package com.bringg.example
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
-import com.bringg.example.debug.LocalEnvironmentSetter
-import com.bringg.example.ui.MapDialogFragment
+import com.bringg.example.databinding.ActivityCustomerBinding
+import com.bringg.example.ui.MapFragment
 import com.bringg.example.ui.VehicleDetailsFragment
 import com.bringg.example.ui.WaypointView
 import com.google.android.material.snackbar.Snackbar
@@ -25,15 +27,13 @@ import driver_sdk.models.enums.LogoutResult
 import driver_sdk.tasks.ArriveWaypointResult
 import driver_sdk.tasks.LeaveWaypointResult
 import driver_sdk.tasks.start.StartTaskResult
-import kotlinx.android.synthetic.main.active_order_layout.*
-import kotlinx.android.synthetic.main.activity_customer.*
-import kotlinx.android.synthetic.main.logged_in_layout.*
-import kotlinx.android.synthetic.main.login_layout.*
 import java.util.*
 
 class CustomerActivity : AppCompatActivity() {
 
     private val TAG = "CustomerActivity"
+
+    private lateinit var binding: ActivityCustomerBinding
 
     // sdk instance
     private lateinit var customerActionsSDK: ActiveCustomerActions
@@ -48,8 +48,9 @@ class CustomerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_customer)
-        setSupportActionBar(toolbar)
+        binding = ActivityCustomerBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
 
         PermissionVerifier.requestLocationPermissions(this)
 
@@ -59,6 +60,13 @@ class CustomerActivity : AppCompatActivity() {
         val builder = SdkSettings.Builder()
             .autoArriveByLocation(SdkSettings.FeatureMode.ENABLED)
             .autoLeaveByLocation(SdkSettings.FeatureMode.ENABLED)
+
+        if (BuildConfig.IS_AUTOMATION) {
+            val url = intent.extras?.getString("url")
+            val realtime = intent.extras?.getString("realtime")
+            if (url != null && realtime != null)
+                builder.urls(url, realtime)
+        }
 
         // initialize the sdk
         val sdkInstance = ActiveCustomerSdkFactory.init(this, ExampleNotificationProvider(this), builder.build())
@@ -76,19 +84,21 @@ class CustomerActivity : AppCompatActivity() {
         // observe active user order, display order UI and perform manual actions (start/arrive/left)
         activeTaskLiveData.observe(this, { onActiveOrderChanged(it) })
 
-        button_login.setOnClickListener { login() }
-        button_start_task.setOnClickListener {
-            val taskId = input_start_task_id.editText?.text.toString().toLongOrNull()
+        binding.loginLayout.buttonLogin.setOnClickListener { login() }
+        binding.loggedInLayout.buttonStartTask.setOnClickListener {
+            val taskId = binding.loggedInLayout.inputStartTaskId.editText?.text.toString().toLongOrNull()
             if (taskId == null) {
-                input_start_task_id.error = "Not a valid task_id"
+                binding.loggedInLayout.inputStartTaskId.error = "Not a valid task_id"
                 return@setOnClickListener
             }
             startOrderById(taskId)
         }
-        button_open_map.setOnClickListener { openMapsView() }
+        binding.orderLayout.buttonOpenMap.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.activity_root_container, MapFragment::class.java, null, "map_fragment")
+                .addToBackStack("map").commit()
+        }
 
-        if (BuildConfig.IS_AUTOMATION)
-            LocalEnvironmentSetter().setServerEnvironmentFromIntent(intent)
     }
 
     /**
@@ -106,20 +116,22 @@ class CustomerActivity : AppCompatActivity() {
      *            }
      */
     private fun login() {
-        val token = text_input_token.editText?.text.toString()
-        val secret = text_input_secret.editText?.text.toString()
-        var region = text_input_region.editText?.text.toString()
+        val token = binding.loginLayout.textInputToken.editText?.text.toString()
+        val secret = binding.loginLayout.textInputSecret.editText?.text.toString()
+        var region = binding.loginLayout.textInputRegion.editText?.text.toString()
 
         if (hasMissingData(token, secret, region)) return
 
         if (BuildConfig.IS_AUTOMATION) region = "local"
 
-        current_state_text.text = "Logging in to Bringg..."
+        binding.currentStateText.text = "Logging in to Bringg..."
+        binding.loginLayout.loginProgress.visibility = View.VISIBLE
         customerActionsSDK.login(token, secret, region, object : ResultCallback<LoginResult> {
             override fun onResult(result: LoginResult) {
+                binding.loginLayout.loginProgress.visibility = View.GONE
                 Log.i(TAG, "login result=$result, success=${result.success()}")
                 if (!result.success())
-                    current_state_text.text = "Login error - login failed, check logs for reason"
+                    binding.currentStateText.text = "Login error - login failed, check logs for reason"
             }
         })
     }
@@ -142,10 +154,10 @@ class CustomerActivity : AppCompatActivity() {
                 Log.i(TAG, "order start result=$result, success=${result.success()}")
                 if (result.success()) {
                     clearTaskIdEditText()
-                    current_state_text.text = "Started order, result=${result.result.name()}"
+                    binding.currentStateText.text = "Started order, result=${result.result.name()}"
                 } else {
-                    input_start_task_id.error = "Error starting order, start result is ${result.result.name()}"
-                    current_state_text.text = "Error trying to start order, check logs for errors, result=${result.result.name()}"
+                    binding.loggedInLayout.inputStartTaskId.error = "Error starting order, start result is ${result.result.name()}"
+                    binding.currentStateText.text = "Error trying to start order, check logs for errors, result=${result.result.name()}"
                 }
             }
         })
@@ -187,7 +199,7 @@ class CustomerActivity : AppCompatActivity() {
         if (result.success()) {
             showArrivedUI(task)
         } else {
-            current_state_text.text =
+            binding.currentStateText.text =
                 "Error trying to arrive to waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
         }
     }
@@ -207,14 +219,11 @@ class CustomerActivity : AppCompatActivity() {
             override fun onResult(result: LeaveWaypointResult) {
                 Log.i(TAG, "leave result=$result, success=${result.success()}")
                 if (!result.success()) {
-                    current_state_text.text = "Error trying to leave waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
+                    binding.currentStateText.text =
+                        "Error trying to leave waypoint ${task.currentWayPointId}, check logs for reason, result=${result}"
                 }
             }
         })
-    }
-
-    private fun openMapsView() {
-        MapDialogFragment().show(supportFragmentManager, "map_fragment")
     }
 
     // region state observing
@@ -257,7 +266,7 @@ class CustomerActivity : AppCompatActivity() {
             TaskStates.CANCELED -> {
                 showOnlineUI()
                 Snackbar.make(
-                    view_flipper,
+                    binding.viewFlipper,
                     "Order #${task!!.externalId} was canceled",
                     Snackbar.LENGTH_LONG
                 ).show()
@@ -268,16 +277,18 @@ class CustomerActivity : AppCompatActivity() {
 
     // region UI changes
     private fun onOrderStateChangedEvent(task: Task?) {
-        task_state.text =
-            if (task == null) "Waiting for active task..." else "Order Status: ${TaskStatusMap.getUserStatus(
-                task.status
-            ).toUpperCase(Locale.US)} (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
+        binding.orderLayout.taskState.text =
+            if (task == null) "Waiting for active task..." else "Order Status: ${
+                TaskStatusMap.getUserStatus(
+                    task.status
+                ).toUpperCase(Locale.US)
+            } (${task.status})\nactive waypoint Id=${task.currentWayPointId}"
 
-        waypoints_container.removeAllViews()
+        binding.orderLayout.waypointsContainer.removeAllViews()
         task?.wayPoints?.forEach { waypoint ->
             val waypointView = WaypointView.newInstance(this)
             waypointView.refresh(task, waypoint)
-            waypoints_container.addView(waypointView)
+            binding.orderLayout.waypointsContainer.addView(waypointView)
         }
     }
 
@@ -292,62 +303,62 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     private fun showLoginUI() {
-        view_flipper.displayedChild = 0
+        binding.viewFlipper.displayedChild = 0
         showNoOrderUI()
-        current_state_text.text = "Logged out from Bringg"
+        binding.currentStateText.text = "Logged out from Bringg"
     }
 
     private fun showLoggedInUI() {
-        view_flipper.displayedChild = 1
+        binding.viewFlipper.displayedChild = 1
         showNoOrderUI()
-        current_state_text.text = "Logged in to Bringg"
+        binding.currentStateText.text = "Logged in to Bringg"
     }
 
     private fun showOnlineUI() {
-        view_flipper.displayedChild = 1
+        binding.viewFlipper.displayedChild = 1
         showNoOrderUI()
         if (true == onlineLiveData.value)
-            current_state_text.text = "all monitoring services are on, waiting for active order"
+            binding.currentStateText.text = "all monitoring services are on, waiting for active order"
         else
-            current_state_text.text = "Logged in to Bringg"
+            binding.currentStateText.text = "Logged in to Bringg"
 
-        current_state.text = "no active order"
+        binding.orderLayout.currentState.text = "no active order"
     }
 
     private fun showStartOrderUI(task: Task) {
         showActiveOrderUI()
-        current_state_text.text = "Got active order"
-        current_state.text = "Online, active order not started"
-        button_next_order_action.text = "Start Order"
-        button_next_order_action.setOnClickListener {
+        binding.currentStateText.text = "Got active order"
+        binding.orderLayout.currentState.text = "Online, active order not started"
+        binding.orderLayout.buttonNextOrderAction.text = "Start Order"
+        binding.orderLayout.buttonNextOrderAction.setOnClickListener {
             startOrder(task)
         }
     }
 
     private fun showOrderStartedUI(task: Task) {
         showActiveOrderUI()
-        current_state_text.text = "Started active waypoint"
-        current_state.text = "Online, active order is started"
-        button_next_order_action.text = "Arrived Destination"
-        button_next_order_action.setOnClickListener {
+        binding.currentStateText.text = "Started active waypoint"
+        binding.orderLayout.currentState.text = "Online, active order is started"
+        binding.orderLayout.buttonNextOrderAction.text = "Arrived Destination"
+        binding.orderLayout.buttonNextOrderAction.setOnClickListener {
             showVehicleDetailsView(task)
         }
     }
 
     private fun showArrivedUI(task: Task) {
         showActiveOrderUI()
-        current_state_text.text = "Arrived to destination"
-        current_state.text = "Online, arrived at current destination"
-        button_next_order_action.text = "Order Collected"
-        button_next_order_action.setOnClickListener {
+        binding.currentStateText.text = "Arrived to destination"
+        binding.orderLayout.currentState.text = "Online, arrived at current destination"
+        binding.orderLayout.buttonNextOrderAction.text = "Order Collected"
+        binding.orderLayout.buttonNextOrderAction.setOnClickListener {
             leave(task)
         }
     }
 
     private fun showLeftDestinationUI(task: Task) {
         showActiveOrderUI()
-        current_state_text.text = "Left destination, order is done=${task.isDone}"
-        current_state.text = "Online, left current destination"
+        binding.currentStateText.text = "Left destination, order is done=${task.isDone}"
+        binding.orderLayout.currentState.text = "Online, left current destination"
         if (task.isDone || task.currentWayPoint == null) {
             showOrderDoneUI(task)
         } else {
@@ -357,14 +368,14 @@ class CustomerActivity : AppCompatActivity() {
 
     private fun showOrderDoneUI(task: Task) {
         showActiveOrderUI()
-        view_flipper.displayedChild = 1
-        current_state_text.text = "Order is done"
-        current_state.text = "Online, active order is done"
-        Snackbar.make(view_flipper, "Order #${task.externalId} is done", Snackbar.LENGTH_LONG).show()
+        binding.viewFlipper.displayedChild = 1
+        binding.currentStateText.text = "Order is done"
+        binding.orderLayout.currentState.text = "Online, active order is done"
+        Snackbar.make(binding.viewFlipper, "Order #${task.externalId} is done", Snackbar.LENGTH_LONG).show()
     }
 
     private fun showActiveOrderUI() {
-        view_flipper.displayedChild = 2
+        binding.viewFlipper.displayedChild = 2
         refreshMenuItemsVisibility()
     }
 
@@ -373,29 +384,29 @@ class CustomerActivity : AppCompatActivity() {
     }
 
     private fun clearTaskIdEditText() {
-        input_start_task_id.error = null
-        input_start_task_id.editText?.text = null
+        binding.loggedInLayout.inputStartTaskId.error = null
+        binding.loggedInLayout.inputStartTaskId.editText?.text = null
     }
 
     private fun hasMissingData(token: String, secret: String, region: String): Boolean {
         var hasError = false
         if (token.isBlank()) {
-            text_input_token.error = "Token is mandatory"
+            binding.loginLayout.textInputToken.error = "Token is mandatory"
             hasError = true
         } else {
-            text_input_token.error = null
+            binding.loginLayout.textInputToken.error = null
         }
         if (secret.isBlank()) {
-            text_input_secret.error = "Secret is mandatory"
+            binding.loginLayout.textInputSecret.error = "Secret is mandatory"
             hasError = true
         } else {
-            text_input_secret.error = null
+            binding.loginLayout.textInputSecret.error = null
         }
         if (region.isBlank()) {
-            text_input_region.error = "Region is mandatory"
+            binding.loginLayout.textInputRegion.error = "Region is mandatory"
             hasError = true
         } else {
-            text_input_region.error = null
+            binding.loginLayout.textInputRegion.error = null
         }
         if (hasError)
             return true
@@ -413,7 +424,7 @@ class CustomerActivity : AppCompatActivity() {
                 override fun onResult(result: LogoutResult) {
                     Log.i(TAG, "logout result=$result, success=${result.success()}")
                     if (!result.success()) {
-                        current_state_text.text = "Error trying to logout, check logs for reason, result=${result.name()}"
+                        binding.currentStateText.text = "Error trying to logout, check logs for reason, result=${result.name()}"
                     }
                 }
             })
